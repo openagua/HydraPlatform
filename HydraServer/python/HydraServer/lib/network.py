@@ -935,7 +935,7 @@ def _get_scenarios(network_id, include_data, user_id, scenario_ids=None):
 
     return scens
 
-def get_network(network_id, summary=False, include_data='N', scenario_ids=None, template_id=None, **kwargs):
+def get_network(network_id, include_resources=True, summary=False, include_data='N', scenario_ids=None, template_id=None, **kwargs):
     """
         Return a whole network as a dictionary.
         network_id: ID of the network to retrieve
@@ -965,24 +965,29 @@ def get_network(network_id, summary=False, include_data='N', scenario_ids=None, 
         net_i.check_read_permission(user_id)
 
         net = dictobj(net_i.__dict__)
+        
+        net.nodes          = []
+        net.links          = []
+        net.resourcegroups = []
+        
+        if include_resources is True:
+            net.nodes          = _get_nodes(network_id, template_id=template_id)
+            net.links          = _get_links(network_id, template_id=template_id)
+            net.resourcegroups = _get_groups(network_id, template_id=template_id)
 
-        net.nodes          = _get_nodes(network_id, template_id=template_id)
-        net.links          = _get_links(network_id, template_id=template_id)
-        net.resourcegroups = _get_groups(network_id, template_id=template_id)
-
-        if summary is False:
-            all_attributes = _get_all_resource_attributes(network_id, template_id)
-            log.info("Setting attributes")
-            net.attributes = all_attributes['NETWORK'].get(network_id, [])
-            for node in net.nodes:
-                node.attributes = all_attributes['NODE'].get(node.node_id, [])
-            log.info("Node attributes set")
-            for link in net.links:
-                link.attributes = all_attributes['LINK'].get(link.link_id, [])
-            log.info("Link attributes set")
-            for group in net.resourcegroups:
-                group.attributes = all_attributes['GROUP'].get(group.group_id, [])
-            log.info("Group attributes set")
+            if summary is False:
+                all_attributes = _get_all_resource_attributes(network_id, template_id)
+                log.info("Setting attributes")
+                net.attributes = all_attributes['NETWORK'].get(network_id, [])
+                for node in net.nodes:
+                    node.attributes = all_attributes['NODE'].get(node.node_id, [])
+                log.info("Node attributes set")
+                for link in net.links:
+                    link.attributes = all_attributes['LINK'].get(link.link_id, [])
+                log.info("Link attributes set")
+                for group in net.resourcegroups:
+                    group.attributes = all_attributes['GROUP'].get(group.group_id, [])
+                log.info("Group attributes set")
 
 
         log.info("Setting types")
