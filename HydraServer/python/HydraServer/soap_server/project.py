@@ -165,8 +165,8 @@ class ProjectService(HydraService):
         project_lib.delete_project(project_id,  **ctx.in_header.__dict__)
         return 'OK' 
 
-    @rpc(Integer, Unicode(pattern="[YN]", default='Y'), _returns=SpyneArray(Network))
-    def get_networks(ctx, project_id, include_data):
+    @rpc(Integer, Unicode(pattern="[YN]", default='Y'), Unicode(pattern="[YN]", default='N'), Unicode(pattern="[YN]", default='Y'), _returns=SpyneArray(Network))
+    def get_networks(ctx, project_id, include_resources, summary, include_data):
         """
         Get all networks in a project
         
@@ -181,8 +181,10 @@ class ProjectService(HydraService):
             ResourceNotFoundError: If the Project is not found.
 
         """
-        net_dicts = project_lib.get_networks(project_id, include_data=include_data, **ctx.in_header.__dict__)
-        networks = [Network(n, summary=True) for n in net_dicts]
+        include_resources = True if include_resources=='Y' else False
+        summary = True if summary=='Y' else False
+        net_dicts = project_lib.get_networks(project_id, include_resources=include_resources, summary=summary, include_data=include_data, **ctx.in_header.__dict__)
+        networks = [Network(n, summary=summary) for n in net_dicts]
         return networks
 
     @rpc(Integer, _returns=Project)

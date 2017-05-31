@@ -67,20 +67,22 @@ class NetworkService(HydraService):
 
     @rpc(Integer,
          Unicode(pattern="[YN]", default='Y'),
-         Integer(),
-         SpyneArray(Integer()),
          Unicode(pattern="[YN]", default='N'),
+         Unicode(pattern="[YN]", default='Y'),
+         Integer,
+         SpyneArray(Integer()),
          _returns=Network)
-    def get_network(ctx, network_id, include_data, template_id, scenario_ids, summary):
+    def get_network(ctx, network_id, include_resources, summary, include_data, template_id, scenario_ids):
         """
         Return a whole network as a complex model.
 
         Args:
             network_id   (int)              : The ID of the network to retrieve
+            include_resources      (char) ('Y' or 'N'): Optional flag to indicate whether resources are included with the network.
+            summary      (char) ('Y' or 'N'): Optional flag to indicate whether attributes are returned with the nodes & links. Setting to 'Y' has significant speed improvements at the cost of not retrieving attribute information.
             include_data (char) ('Y' or 'N'): Optional flag to indicate whether to return datasets with the network. Defaults to 'Y', but using 'N' is much faster.
             template_id  (int)              : Optional parameter which will only return attributes on the resources that are in this template.
             scenario_ids (List(int))        : Optional parameter to indicate which scenarios to return with the network. If left unspecified, all scenarios are returned
-            summary      (char) ('Y' or 'N'): Optional flag to indicate whether attributes are returned with the nodes & links. Seting to 'Y' has significant speed improvements at the cost of not retrieving attribute information.
 
         Returns:
             hydra_complexmodels.Network: A network complex model
@@ -88,13 +90,16 @@ class NetworkService(HydraService):
         Raises:
             ResourceNotFoundError: If the network is not found.
         """
+        include_resources = True if include_resources=='Y' else False
+        summary = True if summary=='Y' else False
         net  = network.get_network(network_id,
-                                   True if summary=='Y' else False,
+                                   include_resources,
+                                   summary,
                                    include_data,
                                    scenario_ids,
                                    template_id,
                                    **ctx.in_header.__dict__)
-        ret_net = Network(net, True if summary=='Y' else False)
+        ret_net = Network(net, summary)
         return ret_net
 
     @rpc(Integer,

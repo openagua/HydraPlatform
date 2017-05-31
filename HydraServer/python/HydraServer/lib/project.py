@@ -232,7 +232,7 @@ def delete_project(project_id,**kwargs):
     DBSession.delete(project)
     DBSession.flush()
 
-def get_networks(project_id, include_data='N', **kwargs):
+def get_networks(project_id, include_resources=True, summary=False, include_data='N', **kwargs):
     """
         Get all networks in a project
         Returns an array of network objects.
@@ -248,7 +248,7 @@ def get_networks(project_id, include_data='N', **kwargs):
         if r.status != 'A':
             continue
         try:
-            net = network.get_network(r.network_id, summary=True, include_data=include_data, **kwargs)
+            net = network.get_network(r.network_id, include_resources=include_resources, summary=summary, include_data=include_data, **kwargs)
             log.info("Network %s retrieved", net.network_name)
             networks.append(net)
         except PermissionError:
