@@ -966,10 +966,21 @@ def get_network(network_id, include_resources=True, summary=False, include_data=
 
         net = dictobj(net_i.__dict__)
                 
+        log.info("Setting types")
+        all_types = _get_all_templates(network_id, template_id)
+        net.types = all_types['NETWORK'].get(network_id, [])                
+                
         if include_resources is True:
             net.nodes          = _get_nodes(network_id, template_id=template_id)
             net.links          = _get_links(network_id, template_id=template_id)
             net.resourcegroups = _get_groups(network_id, template_id=template_id)
+            
+            for node in net.nodes:
+                node.types = all_types['NODE'].get(node.node_id, [])
+            for link in net.links:
+                link.types = all_types['LINK'].get(link.link_id, [])
+            for group in net.resourcegroups:
+                group.types = all_types['GROUP'].get(group.group_id, [])
 
             if summary is False:
             
@@ -986,20 +997,7 @@ def get_network(network_id, include_resources=True, summary=False, include_data=
                     group.attributes = all_attributes['GROUP'].get(group.group_id, [])
                 log.info("Group attributes set")
 
-                
-                for node in net.nodes:
-                    node.types = all_types['NODE'].get(node.node_id, [])
-                for link in net.links:
-                    link.types = all_types['LINK'].get(link.link_id, [])
-                for group in net.resourcegroups:
-                    group.types = all_types['GROUP'].get(group.group_id, [])
-                    
-        if summary is False:
-            log.info("Setting types")
-            all_types = _get_all_templates(network_id, template_id)
-            net.types = all_types['NETWORK'].get(network_id, [])
-
-        else:
+        if summary is True:
             log.info("Getting scenarios")
 
             net.scenarios = _get_scenarios(network_id, include_data, user_id, scenario_ids)

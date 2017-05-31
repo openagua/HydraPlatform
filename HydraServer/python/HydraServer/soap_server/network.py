@@ -66,10 +66,10 @@ class NetworkService(HydraService):
         return ret_net
 
     @rpc(Integer,
+         Unicode(pattern="[YN]", default='Y'),
          Unicode(pattern="[YN]", default='N'),
          Unicode(pattern="[YN]", default='Y'),
-         Unicode(pattern="[YN]", default='Y'),
-         Integer(),
+         Integer,
          SpyneArray(Integer()),
          _returns=Network)
     def get_network(ctx, network_id, include_resources, summary, include_data, template_id, scenario_ids):
@@ -90,14 +90,16 @@ class NetworkService(HydraService):
         Raises:
             ResourceNotFoundError: If the network is not found.
         """
+        include_resources = True if include_resources=='Y' else False
+        summary = True if summary=='Y' else False
         net  = network.get_network(network_id,
-                                   True if include_resources=='Y' else False,
-                                   True if summary=='Y' else False,
+                                   include_resources,
+                                   summary,
                                    include_data,
                                    scenario_ids,
                                    template_id,
                                    **ctx.in_header.__dict__)
-        ret_net = Network(net, True if summary=='Y' else False)
+        ret_net = Network(net, summary)
         return ret_net
 
     @rpc(Integer,
