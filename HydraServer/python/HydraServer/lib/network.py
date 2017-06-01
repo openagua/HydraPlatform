@@ -997,7 +997,7 @@ def get_network(network_id, include_resources=True, summary=False, include_data=
                     group.attributes = all_attributes['GROUP'].get(group.group_id, [])
                 log.info("Group attributes set")
 
-        if summary is True:
+        if summary is False:
             log.info("Getting scenarios")
 
             net.scenarios = _get_scenarios(network_id, include_data, user_id, scenario_ids)
