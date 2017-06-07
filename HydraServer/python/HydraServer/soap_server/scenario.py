@@ -219,7 +219,7 @@ class ScenarioService(HydraService):
         ret_data = [ResourceScenario(rs) for rs in node_data]
         return ret_data 
 
-    @rpc(Integer, Integer, Integer(min_occurs=0, max_occurs=1), _returns=SpyneArray(ResourceScenario))
+    @rpc(Integer, Integer(min_occurs=1, max_occurs='unbounded'), Integer(min_occurs=0, max_occurs=1), _returns=SpyneArray(ResourceScenario))
     def get_link_data(ctx, link_id, scenario_id, type_id):
         """
             Get all the resource scenarios for a given link 
