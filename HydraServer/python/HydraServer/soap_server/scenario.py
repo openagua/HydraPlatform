@@ -303,13 +303,38 @@ class ScenarioService(HydraService):
             Return a list of resource attributes with their associated
             resource scenarios (and values).
         """
-        resource_attrs = scenario.get_attribute_datasests(attr_id, scenario_id, **ctx.in_header.__dict__)
+        resource_attrs = scenario.get_attribute_datasets(attr_id, scenario_id, **ctx.in_header.__dict__)
 
         ra_cms = []
         for ra in resource_attrs:
             res_attr_cm = ResourceAttr(ra)
             for rs in ra.resourcescenarios:
                 if rs.scenario_id==scenario_id:
+                    res_attr_cm.resourcescenario = ResourceScenario(rs)
+            ra_cms.append(res_attr_cm)
+
+        return ra_cms
+
+    @rpc(Integer(min_occurs=1, max_occurs='unbounded'), Integer(min_occurs=1, max_occurs='unbounded'), _returns=SpyneArray(ResourceAttr))
+    def get_resource_attribute_datasets(ctx, resource_attr_id, scenario_id):
+        """
+            Get all the datasets from resource attributes with the given resource attribute
+            IDs in the given scenarios.
+        """
+
+        if not isinstance(resource_attr_id, list):
+            resource_attr_id = [resource_attr_id]
+
+        if not isinstance(scenario_id, list):
+            scenario_id = [scenario_id]
+
+        ra_cms = []
+        resource_attrs = scenario.get_resource_attribute_datasets(resource_attr_id, scenario_id, **ctx.in_header.__dict__)
+
+        for ra in resource_attrs:
+            res_attr_cm = ResourceAttr(ra)
+            for rs in ra.resourcescenarios:
+                if rs.scenario_id in scenario_id:
                     res_attr_cm.resourcescenario = ResourceScenario(rs)
             ra_cms.append(res_attr_cm)
 
