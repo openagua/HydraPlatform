@@ -952,6 +952,56 @@ def _check_can_edit_scenario(scenario_id, user_id):
     if scenario_i.locked == 'Y':
         raise PermissionError('Cannot update scenario %s as it is locked.' % (scenario_id))
 
+def get_resource_attribute_data(ref_key, ref_id, scenario_id, attr_id, **kwargs):
+    """
+        Get all the resource scenarios for a given resource
+        in a given scenario. If type_id is specified, only
+        return the resource scenarios for the attributes
+        within the type.
+    """
+
+    user_id = kwargs.get('user_id')
+
+    # This can be either a single ID or list, so make them consistent
+    if not isinstance(scenario_id, list):
+        scenario_id = [scenario_id]
+
+    resource_data_qry = DBSession.query(ResourceScenario).filter(
+        ResourceScenario.dataset_id == Dataset.dataset_id,
+        ResourceAttr.resource_attr_id == ResourceScenario.resource_attr_id,
+        ResourceScenario.scenario_id.in_(scenario_id),
+        ResourceAttr.ref_key == ref_key,
+        ResourceAttr.attr_id == attr_id,
+        or_(
+            ResourceAttr.network_id == ref_id,
+            ResourceAttr.node_id == ref_id,
+            ResourceAttr.link_id == ref_id,
+            ResourceAttr.group_id == ref_id
+        )).distinct().options(joinedload('resourceattr')).options(joinedload_all('dataset.metadata'))
+
+    if attr_id is not None:
+        if not isinstance(attr_id, list):
+            attr_id = [attr_id]
+        resource_data_qry = resource_data_qry.filter(ResourceAttr.attr_id.in_(attr_id))
+
+    resource_data = resource_data_qry.all()
+
+    for rs in resource_data:
+        try:
+            rs.dataset.value = zlib.decompress(rs.dataset.value)
+        except zlib.error:
+            pass
+
+        if rs.dataset.hidden == 'Y':
+            try:
+                rs.dataset.check_read_permission(user_id)
+            except:
+                rs.dataset.value = None
+                rs.dataset.frequency = None
+                rs.dataset.start_time = None
+
+    DBSession.expunge_all()
+    return resource_data
 
 def get_attribute_datasets(attr_id, scenario_id, **kwargs):
     """
