@@ -14,11 +14,9 @@
 # along with HydraPlatform.  If not, see <http://www.gnu.org/licenses/>
 #
 from spyne.decorator import rpc
-from spyne.model.primitive import Integer, Unicode 
+from spyne.model.primitive import Integer, Unicode
 from spyne.model.complex import Array as SpyneArray
-from hydra_complexmodels import Project,\
-ProjectSummary,\
-Network
+from hydra_complexmodels import Project, ProjectSummary, ProjectOwner, Network
 from hydra_base import HydraService
 from HydraServer.lib import project as project_lib
 
@@ -43,7 +41,7 @@ class ProjectService(HydraService):
 
         """
 
-        new_proj = project_lib.add_project(project, **ctx.in_header.__dict__) 
+        new_proj = project_lib.add_project(project, **ctx.in_header.__dict__)
         ret_proj = Project(new_proj)
         return ret_proj
 
@@ -62,7 +60,7 @@ class ProjectService(HydraService):
                 ResourceNotFoundError: If the project is not found.
 
         """
-        proj_i = project_lib.update_project(project,  **ctx.in_header.__dict__) 
+        proj_i = project_lib.update_project(project,  **ctx.in_header.__dict__)
 
         return Project(proj_i)
 
@@ -81,10 +79,10 @@ class ProjectService(HydraService):
         Raises:
             ResourceNotFoundError: If the project is not found.
         """
-        proj_dict = project_lib.get_project(project_id,  **ctx.in_header.__dict__) 
+        proj_dict = project_lib.get_project(project_id,  **ctx.in_header.__dict__)
 
         return Project(proj_dict)
- 
+
     @rpc(Unicode, _returns=Project)
     def get_project_by_name(ctx, project_name):
         """
@@ -101,7 +99,7 @@ class ProjectService(HydraService):
             ResourceNotFoundError: If the project is not found.
 
         """
-        proj_dict = project_lib.get_project_by_name(project_name,  **ctx.in_header.__dict__) 
+        proj_dict = project_lib.get_project_by_name(project_name,  **ctx.in_header.__dict__)
 
         return Project(proj_dict)
 
@@ -145,7 +143,7 @@ class ProjectService(HydraService):
 
         """
         project_lib.set_project_status(project_id, 'X',  **ctx.in_header.__dict__)
-        return 'OK' 
+        return 'OK'
 
     @rpc(Integer, _returns=Unicode)
     def purge_project(ctx, project_id):
@@ -163,7 +161,7 @@ class ProjectService(HydraService):
             ResourceNotFoundError: If the Project is not found.
         """
         project_lib.delete_project(project_id,  **ctx.in_header.__dict__)
-        return 'OK' 
+        return 'OK'
 
     @rpc(Integer, Unicode(pattern="[YN]", default='Y'), Unicode(pattern="[YN]", default='N'), Unicode(pattern="[YN]", default='Y'), _returns=SpyneArray(Network))
     def get_networks(ctx, project_id, include_resources, summary, include_data):

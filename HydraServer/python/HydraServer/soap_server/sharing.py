@@ -17,6 +17,7 @@ from spyne.model.primitive import Unicode, Integer
 from spyne.decorator import rpc
 from hydra_base import HydraService
 from HydraServer.lib import sharing
+from hydra_complexmodels import ProjectOwner
 
 
 class SharingService(HydraService):
@@ -114,7 +115,28 @@ class SharingService(HydraService):
                                        share,
                                        **ctx.in_header.__dict__)
 
-    @rpc(Integer, Unicode(max_occurs="unbounded"), 
+
+    @rpc(Integer, Integer, _returns=ProjectOwner)
+    def get_project_permissions(ctx, project_id, user_id):
+        """
+
+        Get permissions on a project for a specific user.
+
+        Args:
+            project_id (int): The ID of the project to share
+            user_id  (int): The list of usernames with whom to share the project
+
+        Returns:
+            hydra_complexmodels.ProjectOwner: The project owner with sharing info.
+
+        Raises:
+
+        """
+        owner = sharing.get_project_permissions(project_id, user_id)
+        ret_owner = ProjectOwner(owner)
+        return ret_owner
+
+    @rpc(Integer, Unicode(max_occurs="unbounded"),
          Unicode(pattern="[YN]"), Unicode(pattern="[YN]"), Unicode(pattern="[YN]"),
          _returns=Unicode)
     def set_network_permission(ctx, network_id, usernames, read, write, share):

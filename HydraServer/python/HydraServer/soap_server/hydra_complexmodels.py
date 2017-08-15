@@ -1207,6 +1207,56 @@ class NetworkExtents(HydraComplexModel):
         self.max_x = parent.max_x
         self.max_y = parent.max_y
 
+class ProjectOwner(HydraComplexModel):
+    """
+       - **project_id**   Integer
+       - **user_id**  Integer
+       - **edit**     Unicode
+       - **view**     Unicode
+       - **share**     Unicode
+    """
+    _type_info = [
+        ('project_id',   Integer),
+        ('user_id',  Integer),
+        ('edit',     Unicode),
+        ('view',     Unicode),
+        ('share',     Unicode)
+    ]
+    def __init__(self, parent=None):
+        super(ProjectOwner, self).__init__()
+
+        if parent is None:
+            return
+        self.project_id = parent.project_id
+        self.user_id    = parent.user_id
+        self.edit       = parent.edit
+        self.view       = parent.view
+        self.share       = parent.share
+
+class Owner(HydraComplexModel):
+    """
+       - **user_id**  Integer
+       - **edit**     Unicode
+       - **view**     Unicode
+       - **share**     Unicode
+    """
+    _type_info = [
+        ('user_id',  Integer),
+        ('edit',     Unicode),
+        ('view',     Unicode),
+        ('share',     Unicode)
+    ]
+    def __init__(self, parent=None):
+        super(Owner, self).__init__()
+
+        if parent is None:
+            return
+        self.user_id    = parent.user_id
+        self.edit       = parent.edit
+        self.view       = parent.view
+        self.share       = parent.share
+
+
 class Project(Resource):
     """
    - **id**          Integer(default=None)
@@ -1217,6 +1267,7 @@ class Project(Resource):
    - **created_by**  Integer(default=None)
    - **attributes**  SpyneArray(ResourceAttr)
    - **attribute_data** SpyneArray(ResourceScenario)
+   - **owners** SpyneArray(ProjectOwner)
     """
     _type_info = [
         ('id',          Integer(default=None)),
@@ -1227,6 +1278,7 @@ class Project(Resource):
         ('created_by',  Integer(default=None)),
         ('attributes',  SpyneArray(ResourceAttr)),
         ('attribute_data', SpyneArray(ResourceScenario)),
+        ('owners', SpyneArray(Owner))
     ]
 
     def __init__(self, parent=None):
@@ -1243,6 +1295,7 @@ class Project(Resource):
         self.created_by  = parent.created_by
         self.attributes  = [ResourceAttr(ra) for ra in parent.attributes]
         self.attribute_data  = [ResourceScenario(rs) for rs in parent.attribute_data]
+        self.owners  = [Owner(owner) for owner in parent.owners]
 
 class ProjectSummary(Resource):
     """
@@ -1252,6 +1305,7 @@ class ProjectSummary(Resource):
        - **status**      Unicode(default=None)
        - **cr_date**     Unicode(default=None)
        - **created_by**  Integer(default=None)
+       - **owners**      SpyneArray(Owner)
     """
     _type_info = [
         ('id',          Integer(default=None)),
@@ -1260,6 +1314,7 @@ class ProjectSummary(Resource):
         ('status',      Unicode(default=None)),
         ('cr_date',     Unicode(default=None)),
         ('created_by',  Integer(default=None)),
+        ('owners',      SpyneArray(Owner)),
     ]
 
     def __init__(self, parent=None):
@@ -1274,6 +1329,7 @@ class ProjectSummary(Resource):
         self.created_by = parent.created_by
         self.summary    = parent.summary
         self.status     = parent.status
+        self.owners = [Owner(owner) for owner in parent.owners]
 
 class User(HydraComplexModel):
     """
@@ -1424,28 +1480,6 @@ class Plugin(HydraComplexModel):
         self.params = [PluginParam(pp) for pp in parent.params]
 
 
-class ProjectOwner(HydraComplexModel):
-    """
-       - **project_id**   Integer
-       - **user_id**  Integer
-       - **edit**     Unicode
-       - **view**     Unicode)
-    """
-    _type_info = [
-        ('project_id',   Integer),
-        ('user_id',  Integer),
-        ('edit',     Unicode),
-        ('view',     Unicode)
-    ]
-    def __init__(self, parent=None):
-        super(ProjectOwner, self).__init__()
-
-        if parent is None:
-            return
-        self.project_id = parent.project_id
-        self.user_id    = parent.user_id
-        self.edit       = parent.edit
-        self.view       = parent.view
 
 class DatasetOwner(HydraComplexModel):
     """

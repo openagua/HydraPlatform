@@ -200,6 +200,23 @@ def set_project_permission(project_id, usernames, read, write, share,**kwargs):
             net_i.set_owner(user_i.user_id, read=read, write=write, share=share)
     DBSession.flush()
 
+
+def get_project_permissions(project_id, user_id, **kwargs):
+    """
+        Get permissions on a project to a list of users, identifed by
+        their usernames.
+
+    """
+
+    proj_i = _get_project(project_id)
+
+    #Is the user allowed to read this project?
+    proj_i.check_read_permission(user_id)
+
+    owner = [o for o in proj_i.owners if o.user_id==user_id][0]
+
+    return owner
+
 def set_network_permission(network_id, usernames, read, write, share,**kwargs):
     """
         Set permissions on a network to a list of users, identifed by
