@@ -115,6 +115,8 @@ class SharingService(HydraService):
                                        share,
                                        **ctx.in_header.__dict__)
 
+        return "OK"
+
 
     @rpc(Integer, Integer, _returns=ProjectOwner)
     def get_project_permissions(ctx, project_id, user_id):

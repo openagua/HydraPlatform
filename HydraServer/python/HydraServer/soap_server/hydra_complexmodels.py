@@ -187,6 +187,30 @@ class ResourceData(HydraComplexModel):
 
             self.dataset_metadata = json.dumps(self.metadata)
 
+class Owner(HydraComplexModel):
+    """
+       - **user_id**  Integer
+       - **edit**     Unicode
+       - **view**     Unicode
+       - **share**     Unicode
+    """
+    _type_info = [
+        ('user_id',  Integer),
+        ('edit',     Unicode),
+        ('view',     Unicode),
+        ('share',     Unicode)
+    ]
+    def __init__(self, parent=None):
+        super(Owner, self).__init__()
+
+        if parent is None:
+            return
+        self.user_id    = parent.user_id
+        self.edit       = parent.edit
+        self.view       = parent.view
+        self.share       = parent.share
+
+
 class Dataset(HydraComplexModel, Dataset):
     """
     - **id**               Integer(min_occurs=0, default=None)
@@ -1137,6 +1161,7 @@ class Network(Resource):
        - **resourcegroups**      SpyneArray(ResourceGroup)
        - **types**               SpyneArray(TypeSummary)
        - **projection**          Unicode(default=None)
+       - **owners**               SpyneArray(Owner)
     """
     _type_info = [
         ('project_id',          Integer(default=None)),
@@ -1154,6 +1179,7 @@ class Network(Resource):
         ('resourcegroups',      SpyneArray(ResourceGroup)),
         ('types',               SpyneArray(TypeSummary)),
         ('projection',          Unicode(default=None)),
+        ('owners',              SpyneArray(Owner)),
     ]
 
     def __init__(self, parent=None, summary=False):
@@ -1175,6 +1201,7 @@ class Network(Resource):
         self.resourcegroups = [ResourceGroup(rg, summary) for rg in parent.resourcegroups]
         self.types          = [TypeSummary(t.templatetype) for t in parent.types]
         self.projection  = parent.projection
+        self.owners =      parent.owners
 
         if summary is False:
             self.attributes  = [ResourceAttr(ra) for ra in parent.attributes]
@@ -1228,29 +1255,6 @@ class ProjectOwner(HydraComplexModel):
         if parent is None:
             return
         self.project_id = parent.project_id
-        self.user_id    = parent.user_id
-        self.edit       = parent.edit
-        self.view       = parent.view
-        self.share       = parent.share
-
-class Owner(HydraComplexModel):
-    """
-       - **user_id**  Integer
-       - **edit**     Unicode
-       - **view**     Unicode
-       - **share**     Unicode
-    """
-    _type_info = [
-        ('user_id',  Integer),
-        ('edit',     Unicode),
-        ('view',     Unicode),
-        ('share',     Unicode)
-    ]
-    def __init__(self, parent=None):
-        super(Owner, self).__init__()
-
-        if parent is None:
-            return
         self.user_id    = parent.user_id
         self.edit       = parent.edit
         self.view       = parent.view
