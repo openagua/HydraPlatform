@@ -204,7 +204,8 @@ def get_projects(uid,**kwargs):
     for project in projects:
         project.check_read_permission(req_user_id)
 
-    ret_projects = [to_named_tuple(p, ignore=['user'], extras={'attribute_data':[]}, levels=1) for p in projects]
+    # ret_projects = [to_named_tuple(p, ignore=['user'], extras={'attribute_data':[]}, levels=1) for p in projects]
+    ret_projects = projects
 
     return ret_projects
 
