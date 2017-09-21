@@ -273,6 +273,21 @@ class ScenarioService(HydraService):
         ret_data = [ResourceScenario(rs) for rs in group_data]
         return ret_data
 
+    @rpc(Integer(min_occurs=1, max_occurs='unbounded'), Integer(min_occurs=0, max_occurs='unbounded'),
+         Integer(min_occurs=0, max_occurs='unbounded'), _returns=SpyneArray(Scenario))
+    def get_scenarios_data(ctx, scenario_id, attr_id, type_id):
+        """
+            Get all scenarios and resourcescenarios filtered by
+            scenario_id, attr_id, and/or type_id.
+        """
+        scenarios = scenario.get_scenarios_data(scenario_id,
+                                                type_id,
+                                                attr_id,
+                                                **ctx.in_header.__dict__)
+
+        ret_data = [Scenario(s, summary=False) for s in scenarios]
+        return ret_data
+
     @rpc(Unicode, Integer, Integer(min_occurs=1, max_occurs='unbounded'), Integer(min_occurs=0, max_occurs=1),
          _returns=SpyneArray(ResourceScenario))
     def get_resource_attribute_data(ctx, ref_key, ref_id, scenario_id, attr_id):
@@ -314,7 +329,8 @@ class ScenarioService(HydraService):
 
         return ret_obj
 
-    @rpc(Integer, Integer, _returns=SpyneArray(ResourceAttr))
+    @rpc(Integer(min_occurs=1, max_occurs='unbounded'), Integer(min_occurs=1, max_occurs='unbounded'),
+         _returns=SpyneArray(ResourceAttr))
     def get_attribute_datasets(ctx, attr_id, scenario_id):
         """
             Get all the datasets from resource attributes with the given attribute
@@ -334,6 +350,28 @@ class ScenarioService(HydraService):
             ra_cms.append(res_attr_cm)
 
         return ra_cms
+
+    # @rpc(Integer(min_occurs=1, max_occurs='unbounded'), Integer(min_occurs=1, max_occurs='unbounded'), _returns=SpyneArray(ResourceAttr))
+    # def get_type_datasets(ctx, type_id, scenario_id):
+    #     """
+    #         Get all the datasets from resource types with the given type
+    #         ID(s) in the given scenario(s).
+    #
+    #         Return a list of resource types with their associated
+    #         resource scenarios (and values).
+    #     """
+    #     if type
+    #     template_types = scenario.get_type_datasets(attr_id, scenario_id, **ctx.in_header.__dict__)
+    #
+    #     tt_cms = []
+    #     for tt in template_types:
+    #         tpl_type_cm = TemplateType(tt)
+    #         for rs in tt.resourcescenarios:
+    #             if rs.scenario_id in scenario_id:
+    #                 tpl_type_cm.resourcescenarios.append(ResourceScenario(rs))
+    #         tt_cms.append(tpl_type_cm)
+    #
+    #     return tt_cms
 
     @rpc(Integer(min_occurs=1, max_occurs='unbounded'), Integer(min_occurs=1, max_occurs='unbounded'),
          _returns=SpyneArray(ResourceAttr))
