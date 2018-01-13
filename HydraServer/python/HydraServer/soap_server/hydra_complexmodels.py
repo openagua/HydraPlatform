@@ -194,12 +194,16 @@ class ResourceData(HydraComplexModel):
 class Owner(HydraComplexModel):
     """
        - **user_id**  Integer
+       - **username** Unicode
+       - **display_name** Unicode
        - **edit**     Unicode
        - **view**     Unicode
        - **share**     Unicode
     """
     _type_info = [
         ('user_id', Integer),
+        ('username', Unicode),
+        ('display_name', Unicode),
         ('edit', Unicode),
         ('view', Unicode),
         ('share', Unicode)
@@ -211,6 +215,8 @@ class Owner(HydraComplexModel):
         if parent is None:
             return
         self.user_id = parent.user_id
+        self.username = parent.user.username
+        self.display_name = parent.user.display_name
         self.edit = parent.edit
         self.view = parent.view
         self.share = parent.share
@@ -619,13 +625,18 @@ class Template(HydraComplexModel):
        - **layout**    AnyDict(min_occurs=0, max_occurs=1, default=None)
        - **types**     SpyneArray(TemplateType)
        - **cr_date**   Unicode(default=None)
+       - **created_by**   Integer(default=None)
+       - **owners**               SpyneArray(Owner)
     """
+
     _type_info = [
         ('id', Integer(default=None)),
         ('name', Unicode(default=None)),
         ('layout', AnyDict(min_occurs=0, max_occurs=1, default=None)),
         ('types', SpyneArray(TemplateType)),
         ('cr_date', Unicode(default=None)),
+        ('created_by', Integer(default=None)),
+        ('owners', SpyneArray(Owner)),
     ]
 
     def __init__(self, parent=None):
@@ -636,7 +647,9 @@ class Template(HydraComplexModel):
         self.name = parent.template_name
         self.id = parent.template_id
         self.cr_date = str(parent.cr_date)
+        self.created_by = parent.created_by
         self.layout = self.get_outgoing_layout(parent.layout)
+        self.owners = [Owner(owner) for owner in parent.owners]
 
         types = []
         for templatetype in parent.templatetypes:

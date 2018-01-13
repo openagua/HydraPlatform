@@ -25,7 +25,7 @@ class SharingService(HydraService):
         The network SOAP service.
     """
 
-    @rpc(Integer, Unicode(max_occurs='unbounded'), 
+    @rpc(Integer, Unicode(max_occurs='unbounded'),
          Unicode(pattern="[YN]"), Unicode(pattern="[YN]", default='Y'), _returns=Unicode())
     def share_network(ctx, network_id, usernames, read_only, share):
         """
@@ -84,7 +84,7 @@ class SharingService(HydraService):
                               **ctx.in_header.__dict__)
         return "OK"
 
-    @rpc(Integer, Unicode(max_occurs="unbounded"), 
+    @rpc(Integer, Unicode(max_occurs="unbounded"),
          Unicode(pattern="[YN]"), Unicode(pattern="[YN]"), Unicode(pattern="[YN]"),
          _returns=Unicode)
     def set_project_permission(ctx, project_id, usernames, read, write, share):
@@ -116,7 +116,6 @@ class SharingService(HydraService):
                                        **ctx.in_header.__dict__)
 
         return "OK"
-
 
     @rpc(Integer, Integer, _returns=ProjectOwner)
     def get_project_permissions(ctx, project_id, user_id):
@@ -227,8 +226,66 @@ class SharingService(HydraService):
 
         """
         sharing.unhide_dataset(dataset_id,
-                             **ctx.in_header.__dict__)
+                               **ctx.in_header.__dict__)
 
         return "OK"
 
+    @rpc(Integer, Unicode(max_occurs='unbounded'),
+         Unicode(pattern="[YN]"), Unicode(pattern="[YN]"), _returns=Unicode)
+    def share_template(ctx, template_id, usernames, read_only, share):
+        """
 
+        Share a template with a list of users, identifed by their usernames.
+
+        Args:
+            template_id (int): The ID of the project to share
+            usernames  (List(Unicode)): The list of usernames with whom to share the project
+            read_only  (string) (Y or N): Can the users edit as well as view the project?
+            share      (string) (optional) (Y or N): Can the users share the project with other users? This only goes 1 level deep, so if you share a project with a user and give them sharing ability, they cannot then set the 'share' flag to 'Y' when sharing with someone else.
+
+        Returns:
+            string: 'OK'
+
+        Raises:
+            ResourceNotFoundError: If the project is not found
+            ResourceNotFoundError: If one of the usernames is incorrect or does not exist
+
+        """
+        sharing.share_template(template_id,
+                               usernames,
+                               read_only,
+                               share,
+                               **ctx.in_header.__dict__)
+        return "OK"
+
+    @rpc(Integer, Unicode(max_occurs="unbounded"),
+         Unicode(pattern="[YN]"), Unicode(pattern="[YN]"), Unicode(pattern="[YN]"),
+         _returns=Unicode)
+    def set_template_permission(ctx, template_id, usernames, read, write, share):
+        """
+
+        Set permissions on a template to a list of users, identifed by their usernames.
+
+        Args:
+            template_id (int): The ID of the template to share
+            usernames  (List(Unicode)): The list of usernames with whom to share the project
+            read       (string) (Y or N): Can the users read the project?
+            write      (string) (Y or N): Can the users edit the project?
+            share      (string) (optional) (Y or N): Can the users share the project with other users? This only goes 1 level deep, so if you share a network with a user and give them sharing ability, they cannot then set the 'share' flag to 'Y' when sharing with someone else.
+
+        Returns:
+            string: 'OK'
+
+        Raises:
+            ResourceNotFoundError: If the template is not found
+            ResourceNotFoundError: If one of the usernames is incorrect or does not exist
+
+        """
+        sharing.set_template_permission(template_id,
+                                       usernames,
+                                       read,
+                                       write,
+                                       share,
+                                       **ctx.in_header.__dict__)
+
+        return "OK"

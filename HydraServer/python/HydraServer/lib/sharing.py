@@ -15,40 +15,54 @@
 #
 from HydraLib.HydraException import HydraError, ResourceNotFoundError
 import logging
+
 log = logging.getLogger(__name__)
 from HydraServer.db import DBSession
-from HydraServer.db.model import Network, Project, User, Dataset
+from HydraServer.db.model import Network, Project, Template, User, Dataset
 from sqlalchemy.orm.exc import NoResultFound
+
 
 def _get_project(project_id):
     try:
-        proj_i = DBSession.query(Project).filter(Project.project_id==project_id).one()
+        proj_i = DBSession.query(Project).filter(Project.project_id == project_id).one()
         return proj_i
     except NoResultFound:
-        raise ResourceNotFoundError("Project %s not found"%(project_id,))
+        raise ResourceNotFoundError("Project %s not found" % (project_id,))
+
 
 def _get_network(network_id):
     try:
         net_i = DBSession.query(Network).filter(Network.network_id == network_id).one()
         return net_i
     except NoResultFound:
-        raise ResourceNotFoundError("Network %s not found"%(network_id))
+        raise ResourceNotFoundError("Network %s not found" % (network_id))
+
+
+def _get_template(template_id):
+    try:
+        tmpl_i = DBSession.query(Template).filter(Template.template_id == template_id).one()
+        return tmpl_i
+    except NoResultFound:
+        raise ResourceNotFoundError("Network %s not found" % (template_id))
+
 
 def _get_user(username):
     try:
-        user_i = DBSession.query(User).filter(User.username==username).one()
+        user_i = DBSession.query(User).filter(User.username == username).one()
         return user_i
     except NoResultFound:
-        raise ResourceNotFoundError("User %s not found"%(username))
+        raise ResourceNotFoundError("User %s not found" % (username))
+
 
 def _get_dataset(dataset_id):
     try:
-        dataset_i = DBSession.query(Dataset).filter(Dataset.dataset_id==dataset_id).one()
+        dataset_i = DBSession.query(Dataset).filter(Dataset.dataset_id == dataset_id).one()
         return dataset_i
     except NoResultFound:
-        raise ResourceNotFoundError("Dataset %s not found"%(dataset_id))
+        raise ResourceNotFoundError("Dataset %s not found" % (dataset_id))
 
-def share_network(network_id, usernames, read_only, share,**kwargs):
+
+def share_network(network_id, usernames, read_only, share, **kwargs):
     """
         Share a network with a list of users, identified by their usernames.
 
@@ -71,22 +85,23 @@ def share_network(network_id, usernames, read_only, share,**kwargs):
 
     if net_i.created_by != int(user_id) and share == 'Y':
         raise HydraError("Cannot share the 'sharing' ability as user %s is not"
-                     " the owner of network %s"%
-                     (user_id, network_id))
+                         " the owner of network %s" %
+                         (user_id, network_id))
 
     for username in usernames:
         user_i = _get_user(username)
-        #Set the owner ship on the network itself
+        # Set the owner ship on the network itself
         net_i.set_owner(user_i.user_id, write=write, share=share)
         for o in net_i.project.owners:
             if o.user_id == user_i.user_id:
                 break
         else:
-            #Give the user read access to the containing project
+            # Give the user read access to the containing project
             net_i.project.set_owner(user_i.user_id, write='N', share='N')
     DBSession.flush()
 
-def unshare_network(network_id, usernames,**kwargs):
+
+def unshare_network(network_id, usernames, **kwargs):
     """
         Un-Share a network with a list of users, identified by their usernames.
     """
@@ -97,12 +112,13 @@ def unshare_network(network_id, usernames,**kwargs):
 
     for username in usernames:
         user_i = _get_user(username)
-        #Set the owner ship on the network itself
+        # Set the owner ship on the network itself
 
     net_i.unset_owner(user_i.user_id, write=write, share=share)
     DBSession.flush()
 
-def share_project(project_id, usernames, read_only, share,**kwargs):
+
+def share_project(project_id, usernames, read_only, share, **kwargs):
     """
         Share an entire project with a list of users, identifed by
         their usernames.
@@ -117,7 +133,7 @@ def share_project(project_id, usernames, read_only, share,**kwargs):
 
     proj_i = _get_project(project_id)
 
-    #Is the sharing user allowed to share this project?
+    # Is the sharing user allowed to share this project?
     proj_i.check_share_permission(int(user_id))
 
     user_id = int(user_id)
@@ -126,7 +142,7 @@ def share_project(project_id, usernames, read_only, share,**kwargs):
         if user_id == owner.user_id:
             break
     else:
-       raise HydraError("Permission Denied. Cannot share project.")
+        raise HydraError("Permission Denied. Cannot share project.")
 
     if read_only == 'Y':
         write = 'N'
@@ -136,8 +152,8 @@ def share_project(project_id, usernames, read_only, share,**kwargs):
 
     if proj_i.created_by != user_id and share == 'Y':
         raise HydraError("Cannot share the 'sharing' ability as user %s is not"
-                     " the owner of project %s"%
-                     (user_id, project_id))
+                         " the owner of project %s" %
+                         (user_id, project_id))
 
     for username in usernames:
         user_i = _get_user(username)
@@ -148,7 +164,8 @@ def share_project(project_id, usernames, read_only, share,**kwargs):
             net_i.set_owner(user_i.user_id, write=write, share=share)
     DBSession.flush()
 
-def unshare_project(project_id, usernames,**kwargs):
+
+def unshare_project(project_id, usernames, **kwargs):
     """
         Un-share a project with a list of users, identified by their usernames.
     """
@@ -159,11 +176,12 @@ def unshare_project(project_id, usernames,**kwargs):
 
     for username in usernames:
         user_i = _get_user(username)
-        #Set the owner ship on the network itself
+        # Set the owner ship on the network itself
         proj_i.unset_owner(user_i.user_id, write=write, share=share)
     DBSession.flush()
 
-def set_project_permission(project_id, usernames, read, write, share,**kwargs):
+
+def set_project_permission(project_id, usernames, read, write, share, **kwargs):
     """
         Set permissions on a project to a list of users, identifed by
         their usernames.
@@ -176,10 +194,10 @@ def set_project_permission(project_id, usernames, read, write, share,**kwargs):
 
     proj_i = _get_project(project_id)
 
-    #Is the sharing user allowed to share this project?
+    # Is the sharing user allowed to share this project?
     proj_i.check_share_permission(user_id)
 
-    #You cannot edit something you cannot see.
+    # You cannot edit something you cannot see.
     if read == 'N':
         write = 'N'
         share = 'N'
@@ -187,14 +205,14 @@ def set_project_permission(project_id, usernames, read, write, share,**kwargs):
     for username in usernames:
         user_i = _get_user(username)
 
-        #The creator of a project must always have read and write access
-        #to their project
+        # The creator of a project must always have read and write access
+        # to their project
         if proj_i.created_by == user_i.user_id:
             raise HydraError("Cannot set permissions on project %s"
                              " for user %s as this user is the creator." %
                              (project_id, username))
 
-        if (read=='N' and write=='N'):
+        if (read == 'N' and write == 'N'):
             proj_i.unset_owner(user_i.user_id)
         else:
             proj_i.set_owner(user_i.user_id, read=read, write=write, share=share)
@@ -213,14 +231,15 @@ def get_project_permissions(project_id, user_id, **kwargs):
 
     proj_i = _get_project(project_id)
 
-    #Is the user allowed to read this project?
+    # Is the user allowed to read this project?
     proj_i.check_read_permission(user_id)
 
-    owner = [o for o in proj_i.owners if o.user_id==user_id][0]
+    owner = [o for o in proj_i.owners if o.user_id == user_id][0]
 
     return owner
 
-def set_network_permission(network_id, usernames, read, write, share,**kwargs):
+
+def set_network_permission(network_id, usernames, read, write, share, **kwargs):
     """
         Set permissions on a network to a list of users, identifed by
         their usernames. The read flag ('Y' or 'N') sets read access, the write
@@ -232,10 +251,10 @@ def set_network_permission(network_id, usernames, read, write, share,**kwargs):
 
     net_i = _get_network(network_id)
 
-    #Check if the user is allowed to share this network.
+    # Check if the user is allowed to share this network.
     net_i.check_share_permission(user_id)
 
-    #You cannot edit something you cannot see.
+    # You cannot edit something you cannot see.
     if read == 'N':
         write = 'N'
         share = 'N'
@@ -244,8 +263,8 @@ def set_network_permission(network_id, usernames, read, write, share,**kwargs):
 
         user_i = _get_user(username)
 
-        #The creator of a network must always have read and write access
-        #to their project
+        # The creator of a network must always have read and write access
+        # to their project
         if net_i.created_by == user_i.user_id:
             raise HydraError("Cannot set permissions on network %s"
                              " for user %s as tis user is the creator." %
@@ -254,7 +273,8 @@ def set_network_permission(network_id, usernames, read, write, share,**kwargs):
         net_i.set_owner(user_i.user_id, read=read, write=write, share=share)
     DBSession.flush()
 
-def hide_dataset(dataset_id, exceptions, read, write, share,**kwargs):
+
+def hide_dataset(dataset_id, exceptions, read, write, share, **kwargs):
     """
         Hide a particular piece of data so it can only be seen by its owner.
         Only an owner can hide (and unhide) data.
@@ -266,11 +286,11 @@ def hide_dataset(dataset_id, exceptions, read, write, share,**kwargs):
 
     user_id = kwargs.get('user_id')
     dataset_i = _get_dataset(dataset_id)
-    #check that I can hide the dataset
+    # check that I can hide the dataset
     if dataset_i.created_by != int(user_id):
         raise HydraError('Permission denied. '
-                        'User %s is not the owner of dataset %s'
-                        %(user_id, dataset_i.data_name))
+                         'User %s is not the owner of dataset %s'
+                         % (user_id, dataset_i.data_name))
 
     dataset_i.hidden = 'Y'
     if exceptions is not None:
@@ -279,7 +299,8 @@ def hide_dataset(dataset_id, exceptions, read, write, share,**kwargs):
             dataset_i.set_owner(user_i.user_id, read=read, write=write, share=share)
     DBSession.flush()
 
-def unhide_dataset(dataset_id,**kwargs):
+
+def unhide_dataset(dataset_id, **kwargs):
     """
         Hide a particular piece of data so it can only be seen by its owner.
         Only an owner can hide (and unhide) data.
@@ -291,11 +312,92 @@ def unhide_dataset(dataset_id,**kwargs):
 
     user_id = kwargs.get('user_id')
     dataset_i = _get_dataset(dataset_id)
-    #check that I can unhide the dataset
+    # check that I can unhide the dataset
     if dataset_i.created_by != int(user_id):
         raise HydraError('Permission denied. '
-                        'User %s is not the owner of dataset %s'
-                        %(user_id, dataset_i.data_name))
+                         'User %s is not the owner of dataset %s'
+                         % (user_id, dataset_i.data_name))
 
     dataset_i.hidden = 'N'
+    DBSession.flush()
+
+
+def share_template(template_id, usernames, read_only, share, **kwargs):
+    """
+        Share a template with a list of users, identifed by
+        their usernames.
+
+        The read_only flag ('Y' or 'N') must be set
+        to 'Y' to allow write access or sharing.
+
+        The share flat ('Y' or 'N') must be set to 'Y' to allow the
+        template to be shared with other users
+    """
+    user_id = kwargs.get('user_id')
+    user_id = int(user_id)
+
+    tmpl_i = _get_template(template_id)
+
+    # Is the sharing user allowed to share this project?
+    tmpl_i.check_share_permission(user_id)
+
+    for owner in tmpl_i.owners:
+        if user_id == owner.user_id:
+            break
+    else:
+        raise HydraError("Permission Denied. Cannot share project.")
+
+    if read_only == 'Y':
+        write = 'N'
+        share = 'N'
+    else:
+        write = 'Y'
+
+    if tmpl_i.created_by != user_id and share == 'Y':
+        raise HydraError("Cannot share the 'sharing' ability as user %s is not"
+                         " the owner of project %s" %
+                         (user_id, template_id))
+
+    for username in usernames:
+        user_i = _get_user(username)
+        tmpl_i.set_owner(user_i.user_id, write=write, share=share)
+    DBSession.flush()
+
+
+def set_template_permission(template_id, usernames, read, write, share, **kwargs):
+    """
+        Set permissions on a template to a list of users, identifed by
+        their usernames.
+
+        The read flag ('Y' or 'N') sets read access, the write
+        flag sets write access. If the read flag is 'N', then there is
+        automatically no write access or share access.
+    """
+    user_id = kwargs.get('user_id')
+
+    tmpl_i = _get_template(template_id)
+
+    # Is the sharing user allowed to share this project?
+    tmpl_i.check_share_permission(user_id)
+
+    # You cannot edit something you cannot see.
+    if read == 'N':
+        write = 'N'
+        share = 'N'
+
+    for username in usernames:
+        user_i = _get_user(username)
+
+        # The creator of a project must always have read and write access
+        # to their project
+        if tmpl_i.created_by == user_i.user_id:
+            raise HydraError("Cannot set permissions on template %s"
+                             " for user %s as this user is the creator." %
+                             (template_id, username))
+
+        if read == 'N' and write == 'N':
+            tmpl_i.unset_owner(user_i.user_id)
+        else:
+            tmpl_i.set_owner(user_i.user_id, read=read, write=write, share=share)
+
     DBSession.flush()
