@@ -374,7 +374,7 @@ class Template(Base, Inspect):
 
     template_id = Column(Integer(), primary_key=True, nullable=False)
     template_name = Column(String(60),  nullable=False, unique=True)
-    cr_date = Column(TIMESTAMP(),  nullable=False, server_default=text(u'CURRENT_TIMESTAMP'))
+    cr_date = Column(TIMESTAMP(), nullable=False, server_default=text(u'CURRENT_TIMESTAMP'))
     created_by = Column(Integer(), ForeignKey('tUser.user_id'))
     layout = Column(Text(1000))
 

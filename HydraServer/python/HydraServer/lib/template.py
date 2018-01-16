@@ -901,6 +901,8 @@ def add_template(template, **kwargs):
             ttype = _update_templatetype(templatetype)
             tmpl.templatetypes.append(ttype)
 
+    tmpl.set_owner(user_id)
+
     DBSession.flush()
     return tmpl
 
@@ -973,6 +975,13 @@ def get_templates(load_all=False, **kwargs):
             if layout.get('is_public') not in [False, 'Y', 1]:
                 templates.append(t)
                 template_ids.append(t.template_id)
+
+            # add missing owner
+            if not t.owners:
+                owner = t.set_owner(t.created_by)
+                DBSession.add(owner)
+                DBSession.flush()
+
         user_id = kwargs.get('user_id')
         user_templates = DBSession.query(Template).join(TemplateOwner).filter(TemplateOwner.user_id == user_id).options(joinedload_all('templatetypes.typeattrs')).order_by('template_id').all()
         for t in user_templates:
