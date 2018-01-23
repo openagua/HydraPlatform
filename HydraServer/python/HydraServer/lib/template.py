@@ -986,7 +986,7 @@ def get_templates(load_all=False, **kwargs):
         user_templates = DBSession.query(Template).join(TemplateOwner).filter(TemplateOwner.user_id == user_id).options(joinedload_all('templatetypes.typeattrs')).order_by('template_id').all()
         for t in user_templates:
             if t.template_id not in template_ids:
-                # t.check_read_permission(user_id)
+                t.check_read_permission(user_id)
                 templates.append(t)
         # templates = DBSession.query(Template).options(joinedload_all('templatetypes.typeattrs')).all()
 
