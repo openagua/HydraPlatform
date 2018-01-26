@@ -121,7 +121,7 @@ class ProjectService(HydraService):
         if user_id is None:
             user_id = ctx.in_header.user_id
         project_dicts = project_lib.get_projects(user_id,  **ctx.in_header.__dict__)
-        projects = [Project(p) for p in project_dicts]
+        projects = [ProjectSummary(p) for p in project_dicts]
         return projects
 
 

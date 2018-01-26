@@ -1240,6 +1240,69 @@ class Network(Resource):
             self.attributes = [ResourceAttr(ra) for ra in parent.attributes]
 
 
+class NetworkSummary(Resource):
+    """
+       - **project_id**          Integer(default=None)
+       - **id**                  Integer(default=None)
+       - **name**                Unicode(default=None)
+       - **description**         Unicode(min_occurs=1, default=None)
+       - **created_by**          Integer(default=None)
+       - **cr_date**             Unicode(default=None)
+       - **layout**              AnyDict(min_occurs=0, max_occurs=1, default=None)
+       - **status**              Unicode(default='A')
+       # - **attributes**          SpyneArray(ResourceAttr)
+       # - **scenarios**           SpyneArray(Scenario)
+       # - **nodes**               SpyneArray(Node)
+       # - **links**               SpyneArray(Link)
+       - **resourcegroups**      SpyneArray(ResourceGroup)
+       - **types**               SpyneArray(TypeSummary)
+       - **projection**          Unicode(default=None)
+       - **owners**               SpyneArray(Owner)
+    """
+    _type_info = [
+        ('project_id', Integer(default=None)),
+        ('id', Integer(default=None)),
+        ('name', Unicode(default=None)),
+        ('description', Unicode(min_occurs=0, default=None)),
+        ('created_by', Integer(default=None)),
+        ('cr_date', Unicode(default=None)),
+        ('layout', AnyDict(min_occurs=0, max_occurs=1, default=None)),
+        ('status', Unicode(default='A', pattern="[AX]")),
+        # ('attributes', SpyneArray(ResourceAttr)),
+        # ('scenarios', SpyneArray(Scenario)),
+        # ('nodes', SpyneArray(Node)),
+        # ('links', SpyneArray(Link)),
+        ('resourcegroups', SpyneArray(ResourceGroup)),
+        ('types', SpyneArray(TypeSummary)),
+        ('projection', Unicode(default=None)),
+        ('owners', SpyneArray(Owner)),
+    ]
+
+    def __init__(self, parent=None):
+        super(NetworkSummary, self).__init__()
+
+        if parent is None:
+            return
+        self.project_id = parent.project_id
+        self.id = parent.network_id
+        self.name = parent.network_name
+        self.description = parent.network_description if parent.network_description else ''
+        self.created_by = parent.created_by
+        self.cr_date = str(parent.cr_date)
+        self.layout = self.get_outgoing_layout(parent.layout)
+        self.status = parent.status
+        # self.scenarios = [Scenario(s, summary) for s in parent.scenarios]
+        # self.nodes = [Node(n, summary) for n in parent.nodes]
+        # self.links = [Link(l, summary) for l in parent.links]
+        # self.resourcegroups = [ResourceGroup(rg, summary) for rg in parent.resourcegroups]
+        self.types = [TypeSummary(t.templatetype) for t in parent.types]
+        self.projection = parent.projection
+        self.owners = parent.owners
+
+        # if summary is False:
+        #     self.attributes = [ResourceAttr(ra) for ra in parent.attributes]
+
+
 class NetworkExtents(HydraComplexModel):
     """
        - **network_id** Integer(default=None)
@@ -1307,6 +1370,7 @@ class Project(Resource):
    - **created_by**  Integer(default=None)
    - **attributes**  SpyneArray(ResourceAttr)
    - **attribute_data** SpyneArray(ResourceScenario)
+   - **networks** SpyneArray(NetworkSummary)
    - **owners** SpyneArray(ProjectOwner)
     """
     _type_info = [
@@ -1318,6 +1382,7 @@ class Project(Resource):
         ('created_by', Integer(default=None)),
         ('attributes', SpyneArray(ResourceAttr)),
         ('attribute_data', SpyneArray(ResourceScenario)),
+        ('networks', SpyneArray(NetworkSummary)),
         ('owners', SpyneArray(Owner))
     ]
 
@@ -1335,6 +1400,7 @@ class Project(Resource):
         self.created_by = parent.created_by
         self.attributes = [ResourceAttr(ra) for ra in parent.attributes]
         self.attribute_data = [ResourceScenario(rs) for rs in parent.attribute_data]
+        self.networks = [NetworkSummary(net) for net in parent.networks]
         self.owners = [Owner(owner) for owner in parent.owners]
 
 
@@ -1346,6 +1412,7 @@ class ProjectSummary(Resource):
        - **status**      Unicode(default=None)
        - **cr_date**     Unicode(default=None)
        - **created_by**  Integer(default=None)
+       - **networks**    SpyneArray(NetworkSummary)
        - **owners**      SpyneArray(Owner)
     """
     _type_info = [
@@ -1355,6 +1422,7 @@ class ProjectSummary(Resource):
         ('status', Unicode(default=None)),
         ('cr_date', Unicode(default=None)),
         ('created_by', Integer(default=None)),
+        ('networks', SpyneArray(NetworkSummary)),
         ('owners', SpyneArray(Owner)),
     ]
 
@@ -1368,8 +1436,7 @@ class ProjectSummary(Resource):
         self.description = parent.project_description
         self.cr_date = str(parent.cr_date)
         self.created_by = parent.created_by
-        self.summary = parent.summary
-        self.status = parent.status
+        self.networks = [NetworkSummary(net) for net in parent.networks]
         self.owners = [Owner(owner) for owner in parent.owners]
 
 

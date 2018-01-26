@@ -29,20 +29,22 @@ from HydraServer.db import DeclarativeBase
 
 log = logging.getLogger(__name__)
 
+
 def _get_project(project_id):
     try:
-        project = DBSession.query(Project).filter(Project.project_id==project_id).one()
+        project = DBSession.query(Project).filter(Project.project_id == project_id).one()
         return project
     except NoResultFound:
-        raise ResourceNotFoundError("Project %s not found"%(project_id))
+        raise ResourceNotFoundError("Project %s not found" % (project_id))
+
 
 def _add_project_attribute_data(project_i, attr_map, attribute_data):
     if attribute_data is None:
         return []
-    #As projects do not have scenarios (or to be more precise, they can only use
-    #scenario 1, we can put
-    #resource scenarios directly into the 'attributes' attribute
-    #meaning we can add the data directly here.
+    # As projects do not have scenarios (or to be more precise, they can only use
+    # scenario 1, we can put
+    # resource scenarios directly into the 'attributes' attribute
+    # meaning we can add the data directly here.
     resource_scenarios = []
     for attr in attribute_data:
 
@@ -54,14 +56,15 @@ def _add_project_attribute_data(project_i, attr_map, attribute_data):
         resource_scenarios.append(rscen)
     return resource_scenarios
 
-def add_project(project,**kwargs):
+
+def add_project(project, **kwargs):
     """
         Add a new project
         returns a project complexmodel
     """
     user_id = kwargs.get('user_id')
 
-    #check_perm(user_id, 'add_project')
+    # check_perm(user_id, 'add_project')
     proj_i = Project()
     proj_i.project_name = project.name
     proj_i.project_description = project.description
@@ -78,19 +81,20 @@ def add_project(project,**kwargs):
 
     return proj_i
 
-def update_project(project,**kwargs):
+
+def update_project(project, **kwargs):
     """
         Update a project
         returns a project complexmodel
     """
 
     user_id = kwargs.get('user_id')
-    #check_perm(user_id, 'update_project')
+    # check_perm(user_id, 'update_project')
     proj_i = _get_project(project.id)
 
     proj_i.check_write_permission(user_id)
 
-    proj_i.project_name        = project.name
+    proj_i.project_name = project.name
     proj_i.project_description = project.description
 
     attr_map = add_attributes(proj_i, project.attributes)
@@ -100,7 +104,8 @@ def update_project(project,**kwargs):
 
     return proj_i
 
-def get_project(project_id,**kwargs):
+
+def get_project(project_id, **kwargs):
     """
         get a project complexmodel
     """
@@ -111,19 +116,21 @@ def get_project(project_id,**kwargs):
 
     return proj_i
 
-def get_project_by_name(project_name,**kwargs):
+
+def get_project_by_name(project_name, **kwargs):
     """
         get a project complexmodel
     """
     user_id = kwargs.get('user_id')
     try:
-        proj_i = DBSession.query(Project).filter(Project.project_name==project_name).one()
+        proj_i = DBSession.query(Project).filter(Project.project_name == project_name).one()
     except NoResultFound:
-        raise ResourceNotFoundError("Project %s not found"%(project_name))
+        raise ResourceNotFoundError("Project %s not found" % (project_name))
 
     proj_i.check_read_permission(user_id)
 
     return proj_i
+
 
 def to_named_tuple(obj, visited_children=None, back_relationships=None, levels=None, ignore=[], extras={}):
     """
@@ -139,21 +146,19 @@ def to_named_tuple(obj, visited_children=None, back_relationships=None, levels=N
 
     serialized_data = {c.key: getattr(obj, c.key) for c in obj.__table__.columns}
 
-
-    #Any other non-column data to include in the keyed tuple
+    # Any other non-column data to include in the keyed tuple
     for k, v in extras.items():
         serialized_data[k] = v
 
     relationships = class_mapper(obj.__class__).relationships
 
-    #Set the attributes to 'None' first, so the attributes are there, even if they don't
-    #get filled in:
+    # Set the attributes to 'None' first, so the attributes are there, even if they don't
+    # get filled in:
     for name, relation in relationships.items():
         if relation.uselist:
             serialized_data[name] = tuple([])
         else:
             serialized_data[name] = None
-
 
     visitable_relationships = [(name, rel) for name, rel in relationships.items() if name not in back_relationships]
 
@@ -175,10 +180,12 @@ def to_named_tuple(obj, visited_children=None, back_relationships=None, levels=N
                     children = []
                     for child in [c for c in relationship_children if c not in visited_children]:
                         visited_children.append(child)
-                        children.append(to_named_tuple(child, visited_children, back_relationships, ignore=ignore, levels=levels))
+                        children.append(
+                            to_named_tuple(child, visited_children, back_relationships, ignore=ignore, levels=levels))
                     serialized_data[name] = tuple(children)
                 else:
-                    serialized_data[name] = to_named_tuple(relationship_children, visited_children, back_relationships, ignore=ignore, levels=levels)
+                    serialized_data[name] = to_named_tuple(relationship_children, visited_children, back_relationships,
+                                                           ignore=ignore, levels=levels)
 
     vals = []
     cols = []
@@ -191,16 +198,16 @@ def to_named_tuple(obj, visited_children=None, back_relationships=None, levels=N
     return result
 
 
-def get_projects(uid,**kwargs):
+def get_projects(uid, **kwargs):
     """
         get a project complexmodel
     """
     req_user_id = kwargs.get('user_id')
 
-    #Potentially join this with an rs of projects
-    #where no owner exists?
+    # Potentially join this with an rs of projects
+    # where no owner exists?
 
-    projects = DBSession.query(Project).join(ProjectOwner).filter(ProjectOwner.user_id==uid).options(joinedload_all('networks')).order_by('project_id').all()
+    projects = DBSession.query(Project).join(ProjectOwner).filter(ProjectOwner.user_id == uid).options(joinedload_all('networks')).order_by('project_id').all()
     for project in projects:
         project.check_read_permission(req_user_id)
 
@@ -215,22 +222,24 @@ def set_project_status(project_id, status, **kwargs):
         Set the status of a project to 'X'
     """
     user_id = kwargs.get('user_id')
-    #check_perm(user_id, 'delete_project')
+    # check_perm(user_id, 'delete_project')
     project = _get_project(project_id)
     project.check_write_permission(user_id)
     project.status = status
     DBSession.flush()
 
-def delete_project(project_id,**kwargs):
+
+def delete_project(project_id, **kwargs):
     """
         Set the status of a project to 'X'
     """
     user_id = kwargs.get('user_id')
-    #check_perm(user_id, 'delete_project')
+    # check_perm(user_id, 'delete_project')
     project = _get_project(project_id)
     project.check_write_permission(user_id)
     DBSession.delete(project)
     DBSession.flush()
+
 
 def get_networks(project_id, include_resources=True, summary=False, include_data='N', **kwargs):
     """
@@ -242,29 +251,32 @@ def get_networks(project_id, include_resources=True, summary=False, include_data
     project = _get_project(project_id)
     project.check_read_permission(user_id)
 
-    rs = DBSession.query(Network.network_id, Network.status).filter(Network.project_id==project_id).all()
-    networks=[]
+    rs = DBSession.query(Network.network_id, Network.status).filter(Network.project_id == project_id).all()
+    networks = []
     for r in rs:
         if r.status != 'A':
             continue
         try:
-            net = network.get_network(r.network_id, include_resources=include_resources, summary=summary, include_data=include_data, **kwargs)
+            net = network.get_network(r.network_id, include_resources=include_resources, summary=summary,
+                                      include_data=include_data, **kwargs)
             log.info("Network %s retrieved", net.network_name)
             networks.append(net)
         except PermissionError:
             log.info("Not returning network %s as user %s does not have "
-                         "permission to read it."%(r.network_id, user_id))
+                     "permission to read it." % (r.network_id, user_id))
 
     return networks
+
 
 def get_network_project(network_id, **kwargs):
     """
         get the project that a network is in
     """
 
-    net_proj = DBSession.query(Project).join(Network, and_(Project.project_id==Network.network_id, Network.network_id==network_id)).first()
+    net_proj = DBSession.query(Project).join(Network, and_(Project.project_id == Network.network_id,
+                                                           Network.network_id == network_id)).first()
 
     if net_proj is None:
-        raise HydraError("Network %s not found"% network_id)
+        raise HydraError("Network %s not found" % network_id)
 
     return net_proj
