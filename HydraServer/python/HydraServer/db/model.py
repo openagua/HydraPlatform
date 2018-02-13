@@ -413,7 +413,7 @@ class Template(Base, Inspect):
         """
 
         for owner in self.owners:
-            if int(owner.user_id) == int(user_id):
+            if int(owner.user_id) == int(user_id) or int(owner.user_id) == 1:
                 if owner.view == 'Y':
                     break
         else:
