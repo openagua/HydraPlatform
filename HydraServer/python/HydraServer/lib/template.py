@@ -964,30 +964,29 @@ def get_templates(load_all=False, **kwargs):
     if load_all is True:
         templates = DBSession.query(Template).options(joinedload_all('templatetypes.typeattrs')).order_by('template_id').all()
     else:
-        all_templates = DBSession.query(Template).order_by('template_id').all()
-        templates = []
-        template_ids = []
-        for t in all_templates:
-            try:
-                layout = json.loads(t.layout) if t.layout else {}
-            except:
-                layout = {}
-            if layout.get('is_public') not in [False, 'Y', 1]:
-                templates.append(t)
-                template_ids.append(t.template_id)
 
+        # all_templates = DBSession.query(Template).order_by('template_id').all()
+        # templates = []
+        # template_ids = []
+        # for t in all_templates:
+            # try:
+            #     layout = json.loads(t.layout) if t.layout else {'is_public': False}
+            # except:
+            #     layout = {'is_public': False}
+            # if layout.get('is_public') in [True, 'Y', 1]:
+            #     templates.append(t)
+            #     template_ids.append(t.template_id)
+            #
             # add missing owner
-            if not t.owners:
-                owner = t.set_owner(t.created_by)
-                DBSession.add(owner)
-                DBSession.flush()
+            # if not t.owners:
+            #     owner = t.set_owner(t.created_by)
+            #     DBSession.add(owner)
+            #     DBSession.flush()
 
         user_id = kwargs.get('user_id')
-        user_templates = DBSession.query(Template).join(TemplateOwner).filter(TemplateOwner.user_id == user_id).options(joinedload_all('templatetypes.typeattrs')).order_by('template_id').all()
-        for t in user_templates:
-            if t.template_id not in template_ids:
-                t.check_read_permission(user_id)
-                templates.append(t)
+        templates = DBSession.query(Template).join(TemplateOwner).filter(TemplateOwner.user_id.in_((user_id, 1))).options(joinedload_all('templatetypes.typeattrs')).order_by('template_id').all()
+        for t in templates:
+            t.check_read_permission(user_id)
         # templates = DBSession.query(Template).options(joinedload_all('templatetypes.typeattrs')).all()
 
     return templates
