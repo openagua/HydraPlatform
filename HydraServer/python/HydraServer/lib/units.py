@@ -186,8 +186,11 @@ def get_dimensions(**kwargs):
     dim_list = hydra_units.get_dimensions()
     return dim_list
 
-def get_all_dimensions(**kwargs):
-    return hydra_units.dimensions
+def get_all_dimensions(full=False, **kwargs):
+    if full:
+        return hydra_units.dimensions_full
+    else:
+        return hydra_units.dimensions
 
 def get_units(dimension,**kwargs):
     """Get a list of all units corresponding to a physical dimension.

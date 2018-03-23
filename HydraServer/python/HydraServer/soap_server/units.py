@@ -21,7 +21,7 @@ from spyne.model.complex import Array as SpyneArray
 from spyne.decorator import rpc
 from spyne.util.dictdoc import get_object_as_dict
 from hydra_base import HydraService
-from hydra_complexmodels import Unit, Dimension
+from hydra_complexmodels import Unit, Dimension, DimensionComplete
 
 from HydraServer.lib import units
 
@@ -133,14 +133,19 @@ class UnitService(HydraService):
         dim_list = units.get_dimensions(**ctx.in_header.__dict__)
         return dim_list
 
-    @rpc(_returns=SpyneArray(Dimension))
-    def get_all_dimensions(ctx):
+    @rpc(Unicode(pattern="[YN]", default='N',), _returns=SpyneArray(Dimension))
+    def get_all_dimensions(ctx, full):
         """Get a list of all physical dimensions available on the server.
         """
-        dimdict = units.get_all_dimensions(**ctx.in_header.__dict__)
+
+        include_full = full=='Y'
+        dimdict = units.get_all_dimensions(full=include_full, **ctx.in_header.__dict__)
         dimens = []
         for dim_name, unit_list in dimdict.items():
-            dimens.append(Dimension(dim_name, unit_list))
+            if include_full:
+                dimens.append(Dimension(dim_name, unit_list))
+            else:
+                dimens.append(DimensionComplete(dim_name, unit_list))
         return dimens
 
     @rpc(Unicode, _returns=SpyneArray(Unit))

@@ -1690,3 +1690,18 @@ class Dimension(HydraComplexModel):
     def __init__(self, name, units):
         self.name = name
         self.units = units
+
+class DimensionComplete(HydraComplexModel):
+    """
+        A dimension, with name and units
+       - **name** Unicode
+       - **units** SpyneArray(Unicode)
+    """
+    _type_info = [
+        ('name', Unicode),
+        ('units', SpyneArray(Unit)),
+    ]
+
+    def __init__(self, name, units):
+        self.name = name
+        self.units = units

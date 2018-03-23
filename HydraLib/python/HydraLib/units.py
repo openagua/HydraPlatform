@@ -42,6 +42,7 @@ class Units(object):
     unittree = None
     usertree = None
     dimensions = dict()
+    dimensions_full = dict()
     units = dict()
     userunits = []
     userdimensions = []
@@ -99,8 +100,16 @@ class Units(object):
             dimension = element.get('name')
             if dimension not in self.dimensions.keys():
                 self.dimensions.update({dimension: []})
+                self.dimensions_full.update({dimension: []})
             for unit in element:
                 self.dimensions[dimension].append(unit.get('abbr'))
+                self.dimensions_full[dimension].append({
+                    'name': unit.get('name'),
+                    'abbr': unit.get('abbr'),
+                    'cf': float(unit.get('cf')),
+                    'lf': float(unit.get('lf')),
+                    'info': unit.get('info'),
+                })
                 self.units.update({unit.get('abbr'):
                                    (float(unit.get('lf')),
                                     float(unit.get('cf')))})
@@ -159,7 +168,7 @@ class Units(object):
             return unit, 1.0
 
     def get_dimensions(self):
-        """Get a list of all dimenstions listed in one of the xml files.
+        """Get a list of all dimensions listed in one of the xml files.
         """
         return self.dimensions.keys()
 
@@ -184,6 +193,7 @@ class Units(object):
         if dimension not in self.dimensions.keys():
             self.usertree.append(etree.Element('dimension', name=dimension))
             self.dimensions.update({dimension: []})
+            self.dimensions_full.update({dimension: []})
             self.userdimensions.append(dimension)
             return True
         else:
@@ -224,6 +234,7 @@ class Units(object):
                 unit['info'] = ''
             # Update internal variables:
             self.dimensions[dimension].append(unit['abbr'])
+            self.dimensions_full[dimension].append(unit)
             self.units.update({unit['abbr']:
                                (float(unit['lf']), float(unit['cf']))})
             self.unit_description.update({unit['abbr']: unit['name']})
@@ -260,6 +271,7 @@ class Units(object):
 
             # update internal variables
             self.dimensions[dimension].append(unit['abbr'])
+            self.dimensions_full[dimension].append(unit)
             self.units.update({unit['abbr']:
                                (float(unit['lf']), float(unit['cf']))})
             self.unit_description.update({unit['abbr']: unit['name']})
@@ -291,6 +303,7 @@ class Units(object):
         if unit['abbr'] in self.userunits:
             self.userunits.remove(unit['abbr'])
             self.dimensions[unit['dimension']].remove(unit['abbr'])
+            self.dimensions[unit['dimension']] = [u for u in self.dimensions[unit['dimension']] if u['abbr'] != unit['abbr']]
             del self.units[unit['abbr']]
             del self.unit_description[unit['abbr']]
             # Update XML tree
