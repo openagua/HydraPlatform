@@ -143,9 +143,10 @@ class UnitService(HydraService):
         dimens = []
         for dim_name, unit_list in dimdict.items():
             if include_full:
-                dimens.append(Dimension(dim_name, unit_list))
-            else:
+                print('full')
                 dimens.append(DimensionComplete(dim_name, unit_list))
+            else:
+                dimens.append(Dimension(dim_name, unit_list))
         return dimens
 
     @rpc(Unicode, _returns=SpyneArray(Unit))
