@@ -143,7 +143,6 @@ class UnitService(HydraService):
         dimens = []
         for dim_name, unit_list in dimdict.items():
             if include_full:
-                print('full')
                 dimens.append(DimensionComplete(dim_name, unit_list))
             else:
                 dimens.append(Dimension(dim_name, unit_list))
