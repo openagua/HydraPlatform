@@ -313,7 +313,7 @@ def get_all_resource_attributes(ref_key, network_id, template_id=None, **kwargs)
     """
         Get all the resource attributes for a given resource type in the network.
         That includes all the resource attributes for a given type within the network.
-        For example, if the ref_key is 'NODE', then it will return all the attirbutes
+        For example, if the ref_key is 'NODE', then it will return all the attributes
         of all nodes in the network. This function allows a front end to pre-load an entire
         network's resource attribute information to reduce on function calls.
         If type_id is specified, only

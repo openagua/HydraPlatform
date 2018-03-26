@@ -820,7 +820,7 @@ class NetworkService(HydraService):
         """
         return network.validate_network_topology(network_id, **ctx.in_header.__dict__)
 
-    @rpc(Integer, Integer, _returns=SpyneArray(ResourceSummary))
+    @rpc(Integer, Integer(min_occurs=1, max_occurs="unbounded"), _returns=SpyneArray(ResourceSummary))
     def get_resources_of_type(ctx, network_id, type_id):
         """
         Return a list of Nodes, Links or ResourceGroups
@@ -836,6 +836,9 @@ class NetworkService(HydraService):
         Raises:
             ResourceNotFoundError: If the network or type is not found
         """
+
+        if type(type_id) == int:
+            type_id = [type_id]
 
         nodes, links, groups = network.get_resources_of_type(network_id, type_id, **ctx.in_header.__dict__)
 
