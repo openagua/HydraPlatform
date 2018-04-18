@@ -135,7 +135,7 @@ class Dataset(Base, Inspect):
             if type(val) != str:
                 val = json.dumps(val)
 
-            if len(val) > config.get('DATA', 'compression_threshold', 1000):
+            if len(val) > config.get('db', 'compression_threshold', 5000):
                 self.value = zlib.compress(val)
             else:
                 self.value = val
@@ -158,7 +158,7 @@ class Dataset(Base, Inspect):
                 #Epoch doesn't work here because dates before 1970 are not supported
                 #in read_json. Ridiculous.
                 json_value =  timeseries_pd.to_json(date_format='iso', date_unit='ns')
-                if len(json_value) > config.get('DATA', 'compression_threshold', 1000):
+                if len(json_value) > config.get('db', 'compression_threshold', 5000):
                     self.value = zlib.compress(json_value)
                 else:
                     self.value = json_value
@@ -227,6 +227,8 @@ class Dataset(Base, Inspect):
         """
             Check whether this user can read this dataset
         """
+        if self.created_by == int(user_id):
+            return
 
         for owner in self.owners:
             if int(owner.user_id) == int(user_id):
@@ -256,6 +258,9 @@ class Dataset(Base, Inspect):
             Check whether this user can write this dataset
         """
 
+        if self.created_by == int(user_id):
+            return
+
         for owner in self.owners:
             if owner.user_id == int(user_id):
                 if owner.view == 'Y' and owner.edit == 'Y':
@@ -269,6 +274,8 @@ class Dataset(Base, Inspect):
         """
             Check whether this user can write this dataset
         """
+        if self.created_by == int(user_id):
+            return
 
         for owner in self.owners:
             if owner.user_id == int(user_id):
@@ -724,6 +731,9 @@ class Project(Base, Inspect):
             Check whether this user can read this project
         """
 
+        if self.created_by == int(user_id):
+            return
+
         for owner in self.owners:
             if int(owner.user_id) == int(user_id):
                 if owner.view == 'Y':
@@ -738,6 +748,9 @@ class Project(Base, Inspect):
             Check whether this user can write this project
         """
 
+        if self.created_by == int(user_id):
+            return
+
         for owner in self.owners:
             if owner.user_id == int(user_id):
                 if owner.view == 'Y' and owner.edit == 'Y':
@@ -751,6 +764,9 @@ class Project(Base, Inspect):
         """
             Check whether this user can write this project
         """
+
+        if self.created_by == int(user_id):
+            return
 
         for owner in self.owners:
             if owner.user_id == int(user_id):
@@ -903,6 +919,9 @@ class Network(Base, Inspect):
             Check whether this user can read this network
         """
 
+        if self.created_by == int(user_id):
+            return
+
         for owner in self.owners:
             if int(owner.user_id) == int(user_id):
                 if owner.view == 'Y':
@@ -917,6 +936,9 @@ class Network(Base, Inspect):
             Check whether this user can write this project
         """
 
+        if self.created_by == int(user_id):
+            return
+
         for owner in self.owners:
             if owner.user_id == int(user_id):
                 if owner.view == 'Y' and owner.edit == 'Y':
@@ -930,6 +952,9 @@ class Network(Base, Inspect):
         """
             Check whether this user can write this project
         """
+
+        if self.created_by == int(user_id):
+            return
 
         for owner in self.owners:
             if owner.user_id == int(user_id):
@@ -1278,12 +1303,14 @@ class Note(Base, Inspect):
     note_id = Column(Integer(), primary_key=True, nullable=False)
 
     ref_key = Column(String(60),  nullable=False, index=True)
-
-    note_text = Column('value', LargeBinary(),  nullable=True)
+    
+    #i'd use 'text' here except text is a reserved keyword in sqlalchemy it seems
+    note_text    = Column('note_text', LargeBinary(),  nullable=True)
 
     created_by = Column(Integer(), ForeignKey('tUser.user_id'))
 
     cr_date = Column(TIMESTAMP(),  nullable=False, server_default=text(u'CURRENT_TIMESTAMP'))
+
     scenario_id = Column(Integer(), ForeignKey('tScenario.scenario_id'),  index=True, nullable=True)
     project_id = Column(Integer(), ForeignKey('tProject.project_id'),  index=True, nullable=True)
 

@@ -531,18 +531,18 @@ class TypeAttr(HydraComplexModel):
        - **cr_date**            Unicode(default=None)
     """
     _type_info = [
-        ('attr_id', Integer(min_occurs=1, max_occurs=1)),
-        ('attr_name', Unicode(default=None)),
-        ('type_id', Integer(min_occurs=0, max_occurs=1, default=None)),
-        ('data_type', Unicode(default=None)),
-        ('dimension', Unicode(default=None)),
-        ('unit', Unicode(default=None)),
-        ('default_dataset_id', Integer(default=None)),
-        ('data_restriction', AnyDict(default=None)),
-        ('is_var', Unicode(default=None)),
-        ('description', Unicode(default=None)),
-        ('properties', AnyDict(default=None)),
-        ('cr_date', Unicode(default=None)),
+        ('attr_id',            Integer(min_occurs=1, max_occurs=1)),
+        ('attr_name',          Unicode(default=None)),
+        ('type_id',            Integer(min_occurs=0, max_occurs=1, default=None)),
+        ('data_type',          Unicode(default=None)),
+        ('dimension',          Unicode(default=None)),
+        ('unit',               Unicode(default=None)),
+        ('default_dataset',    Dataset),
+        ('data_restriction',   AnyDict(default=None)),
+        ('is_var',             Unicode(default=None)),
+        ('description',        Unicode(default=None)),
+        ('properties',         AnyDict(default=None)),
+        ('cr_date',            Unicode(default=None)),
     ]
 
     def __init__(self, parent=None):
@@ -561,8 +561,9 @@ class TypeAttr(HydraComplexModel):
 
         self.type_id = parent.type_id
         self.data_type = parent.data_type
-        self.unit = parent.unit
-        self.default_dataset_id = self.default_dataset_id
+        self.unit      = parent.unit
+        if parent.default_dataset_id is not None:
+            self.default_dataset = Dataset(parent.default_dataset)
         self.description = parent.description
         self.properties = self.get_outgoing_layout(parent.properties)
         self.cr_date = str(parent.cr_date)
@@ -591,11 +592,12 @@ class TemplateType(HydraComplexModel):
         ('id', Integer(default=None)),
         ('name', Unicode(default=None)),
         ('resource_type', Unicode(values=['GROUP', 'NODE', 'LINK', 'NETWORK'], default=None)),
-        ('alias', Unicode(default=None)),
-        ('layout', AnyDict(min_occurs=0, max_occurs=1, default=None)),
-        ('template_id', Integer(min_occurs=0, max_occurs=1, default=None)),
-        ('typeattrs', SpyneArray(TypeAttr)),
-        ('cr_date', Unicode(default=None)),
+
+        ('alias',       Unicode(default=None)),
+        ('layout',      AnyDict(min_occurs=0, max_occurs=1, default=None)),
+        ('template_id', Integer(min_occurs=0, default=None)),
+        ('typeattrs',   SpyneArray(TypeAttr)),
+        ('cr_date',     Unicode(default=None)),
     ]
 
     def __init__(self, parent=None):
