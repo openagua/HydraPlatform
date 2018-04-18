@@ -997,6 +997,8 @@ def get_network(network_id, include_resources=True, summary=False, include_data=
                                 noload('resourcegroups')).one()
 
         net_i.check_read_permission(user_id)
+        net_i.owners
+        # TODO: delete the above once owners can be added automatically by SQLAlchemy, non-lazily, or some other mod
 
         net = dictobj(net_i.__dict__)
                 
