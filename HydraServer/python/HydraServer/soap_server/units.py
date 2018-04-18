@@ -29,67 +29,67 @@ class UnitService(HydraService):
     """
     """
 
-    @rpc(Unicode, _returns=Boolean)
-    def add_dimension(ctx, dimension):
-        """Add a physical dimensions (such as ``Volume`` or ``Speed``) to the
-        servers list of dimensions. If the dimension already exists, nothing is
-        done.
-        """
-        result = units.add_dimension(dimension, **ctx.in_header.__dict__)
-        return result
+    # @rpc(Unicode, _returns=Boolean)
+    # def add_dimension(ctx, dimension):
+    #     """Add a physical dimensions (such as ``Volume`` or ``Speed``) to the
+    #     servers list of dimensions. If the dimension already exists, nothing is
+    #     done.
+    #     """
+    #     result = units.add_dimension(dimension, **ctx.in_header.__dict__)
+    #     return result
+    #
+    # @rpc(Unicode, _returns=Boolean)
+    # def delete_dimension(ctx, dimension):
+    #     """Delete a physical dimension from the list of dimensions. Please note
+    #     that deleting works only for dimensions listed in the custom file.
+    #     """
+    #     result = units.delete_dimension(dimension, **ctx.in_header.__dict__)
+    #     return result
+    #
+    # @rpc(Unit, _returns=Boolean)
+    # def add_unit(ctx, unit):
+    #     """Add a physical unit to the servers list of units. The Hydra server
+    #     provides a complex model ``Unit`` which should be used to add a unit.
+    #
+    #     A minimal example:
+    #
+    #     .. code-block:: python
+    #
+    #         from HydraLib import PluginLib
+    #
+    #         cli = PluginLib.connect()
+    #
+    #         new_unit = cli.factory.create('hyd:Unit')
+    #         new_unit.name = 'Teaspoons per second'
+    #         new_unit.abbr = 'tsp s^-1'
+    #         new_unit.cf = 0               # Constant conversion factor
+    #         new_unit.lf = 1.47867648e-05  # Linear conversion factor
+    #         new_unit.dimension = 'Volumetric flow rate'
+    #         new_unit.info = 'A flow of one teaspoon per second.'
+    #
+    #         cli.service.add_unit(new_unit)
+    #     """
+    #     # Convert the complex model into a dict
+    #     unitdict = get_object_as_dict(unit, Unit)
+    #     units.add_unit(unitdict, **ctx.in_header.__dict__)
+    #     return True
 
-    @rpc(Unicode, _returns=Boolean)
-    def delete_dimension(ctx, dimension):
-        """Delete a physical dimension from the list of dimensions. Please note
-        that deleting works only for dimensions listed in the custom file.
-        """
-        result = units.delete_dimension(dimension, **ctx.in_header.__dict__)
-        return result
-
-    @rpc(Unit, _returns=Boolean)
-    def add_unit(ctx, unit):
-        """Add a physical unit to the servers list of units. The Hydra server
-        provides a complex model ``Unit`` which should be used to add a unit.
-
-        A minimal example:
-
-        .. code-block:: python
-
-            from HydraLib import PluginLib
-
-            cli = PluginLib.connect()
-
-            new_unit = cli.factory.create('hyd:Unit')
-            new_unit.name = 'Teaspoons per second'
-            new_unit.abbr = 'tsp s^-1'
-            new_unit.cf = 0               # Constant conversion factor
-            new_unit.lf = 1.47867648e-05  # Linear conversion factor
-            new_unit.dimension = 'Volumetric flow rate'
-            new_unit.info = 'A flow of one teaspoon per second.'
-
-            cli.service.add_unit(new_unit)
-        """
-        # Convert the complex model into a dict
-        unitdict = get_object_as_dict(unit, Unit)
-        units.add_unit(unitdict, **ctx.in_header.__dict__)
-        return True
-
-    @rpc(Unit, _returns=Boolean)
-    def update_unit(ctx, unit):
-        """Update an existing unit added to the custom unit collection. Please
-        not that units built in to the library can not be updated.
-        """
-        unitdict = get_object_as_dict(unit, Unit)
-        result = units.update_unit(unitdict, **ctx.in_header.__dict__)
-        return result
-
-    @rpc(Unit, _returns=Boolean)
-    def delete_unit(ctx, unit):
-        """Delete a unit from the custom unit collection.
-        """
-        unitdict = get_object_as_dict(unit, Unit)
-        result = units.delete_unit(unitdict, **ctx.in_header.__dict__)
-        return result
+    # @rpc(Unit, _returns=Boolean)
+    # def update_unit(ctx, unit):
+    #     """Update an existing unit added to the custom unit collection. Please
+    #     not that units built in to the library can not be updated.
+    #     """
+    #     unitdict = get_object_as_dict(unit, Unit)
+    #     result = units.update_unit(unitdict, **ctx.in_header.__dict__)
+    #     return result
+    #
+    # @rpc(Unit, _returns=Boolean)
+    # def delete_unit(ctx, unit):
+    #     """Delete a unit from the custom unit collection.
+    #     """
+    #     unitdict = get_object_as_dict(unit, Unit)
+    #     result = units.delete_unit(unitdict, **ctx.in_header.__dict__)
+    #     return result
 
     @rpc(Decimal(min_occurs=1, max_occurs="unbounded"),
          Unicode, Unicode,
