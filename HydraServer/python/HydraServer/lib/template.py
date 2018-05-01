@@ -919,7 +919,6 @@ def remove_type_from_resource(type_id, resource_type, resource_id, **kwargs):
 
 
 def _parse_data_restriction(restriction_dict):
-    log.critical(restriction_dict)
     if restriction_dict is None or len(restriction_dict) == 0:
         return None
 
@@ -1146,7 +1145,8 @@ def _set_typeattr(typeattr, existing_ta=None):
     ta.type_id = typeattr.type_id
     ta.data_type = typeattr.data_type
     #TODO: Do something here. Either always use a dataset ID or use the dataset object. but use 1 of them!
-    ta.default_dataset_id = typeattr.default_dataset
+    # ta.default_dataset_id = typeattr.default_dataset
+    ta.default_dataset_id = None
     ta.description        = typeattr.description
     
     ta.properties         = typeattr.get_properties()
@@ -1190,6 +1190,7 @@ def _update_templatetype(templatetype, existing_tt=None):
 
     tmpltype_i.template_id = templatetype.template_id
     tmpltype_i.type_name = templatetype.name
+
     tmpltype_i.alias = templatetype.alias
 
     if templatetype.layout is not None:
