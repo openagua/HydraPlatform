@@ -999,7 +999,7 @@ def get_scenarios_data(scenario_id, attr_id, type_id, **kwargs):
                     rs.dataset.start_time = None
         scenario.resourcescenarios = resource_data
         scenario.resourcegroupitems = []
-        DBSession.expunge_all()
+    DBSession.expunge_all()
     return scenarios
 
 
