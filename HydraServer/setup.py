@@ -31,9 +31,10 @@ install_requires=[
     "lxml",
     "mysql-connector-python",
     "suds",
-    "spyne >= 2.12",
+    "spyne == 2.12.14", # there is a bug with 2.13
     "python-dateutil",
     "requests",
+    "beaker",
     "cheroot"
     ]
 
