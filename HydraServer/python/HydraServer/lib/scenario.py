@@ -944,7 +944,7 @@ def get_resource_data(ref_key, ref_id, scenario_id, type_id, **kwargs):
     return resource_data
 
 
-def get_scenarios_data(scenario_id, attr_id, type_id, **kwargs):
+def get_scenarios_data(nodes, links, scenario_id, attr_id, type_id, **kwargs):
     """
         Get all the resource scenarios for a given attribute and/or type
         in a given scenario.
@@ -966,21 +966,18 @@ def get_scenarios_data(scenario_id, attr_id, type_id, **kwargs):
             .options(joinedload('resourceattr')) \
             .options(joinedload_all('dataset.metadata'))
 
-        attr_ids = []
-        if type_id is not None:
-            if not isinstance(type_id, list):
-                type_id = [type_id]
-            rs = DBSession.query(TypeAttr).filter(TypeAttr.type_id.in_(type_id)).all()
-            for r in rs:
-                attr_ids.append(r.attr_id)
-        if attr_id is not None:
-            if not isinstance(attr_id, list):
-                attr_id = [attr_id]
-            attr_ids.extend(attr_id)
-        attr_ids = set(attr_ids)
+        if attr_id:
+            resource_data_qry = resource_data_qry.filter(ResourceAttr.attr_id.in_(set(attr_id)))
 
-        if attr_ids:
-            resource_data = resource_data_qry.filter(ResourceAttr.attr_id.in_(attr_ids))
+        if nodes and links:
+            resource_data_qry = resource_data_qry.filter( or_(
+                ResourceAttr.node_id.in_(set(nodes)),
+                ResourceAttr.link_id.in_(set(links))
+                ))
+        elif nodes:
+            resource_data_qry = resource_data_qry.filter( ResourceAttr.node_id.in_(set(nodes)))
+        elif links:
+            resource_data_qry = resource_data_qry.filter( ResourceAttr.link_id.in_(set(links)))
 
         resource_data = resource_data_qry.all()
 

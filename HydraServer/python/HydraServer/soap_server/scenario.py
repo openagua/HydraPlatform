@@ -273,16 +273,22 @@ class ScenarioService(HydraService):
         ret_data = [ResourceScenario(rs) for rs in group_data]
         return ret_data
 
-    @rpc(Integer(min_occurs=1, max_occurs='unbounded'), Integer(min_occurs=0, max_occurs='unbounded'),
-         Integer(min_occurs=0, max_occurs='unbounded'), _returns=SpyneArray(Scenario))
-    def get_scenarios_data(ctx, scenario_id, attr_id, type_id):
+    @rpc(Integer(min_occurs=0, max_occurs='unbounded'),
+         Integer(min_occurs=0, max_occurs='unbounded'),
+         Integer(min_occurs=1, max_occurs='unbounded'),
+         Integer(min_occurs=0, max_occurs='unbounded'),
+         Integer(min_occurs=0, max_occurs='unbounded'),
+         _returns=SpyneArray(Scenario))
+    def get_scenarios_data(ctx, nodes, links, scenario_id, attr_id, type_id):
         """
             Get all scenarios and resourcescenarios filtered by
             scenario_id, attr_id, and/or type_id.
         """
-        scenarios = scenario.get_scenarios_data(scenario_id,
-                                                type_id,
+        scenarios = scenario.get_scenarios_data(nodes,
+                                                links,
+                                                scenario_id,
                                                 attr_id,
+                                                type_id,
                                                 **ctx.in_header.__dict__)
 
         ret_data = [Scenario(s, summary=False) for s in scenarios]
