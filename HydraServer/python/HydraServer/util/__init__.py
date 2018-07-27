@@ -31,8 +31,8 @@ def generate_data_hash(dataset_dict):
         d['metadata'] = {}
 
     hash_string = "%s %s %s %s %s %s"%(
-                                d['data_name'] if type(d['data_name']) is unicode else str(d['data_name']),
-                                d['data_units'] if type(d['data_units']) is unicode else str(d['data_units']),
+                                str(d['data_name']),
+                                str(d['data_units']),
                                 str(d['data_dimen']),
                                 str(d['data_type']),
                                 d['value'],
