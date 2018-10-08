@@ -70,6 +70,9 @@ def add_project(project, **kwargs):
     proj_i.project_description = project.description
     proj_i.created_by = user_id
 
+    if project.layout is not None:
+        proj_i.layout = project.get_layout()
+
     attr_map = add_attributes(proj_i, project.attributes)
     proj_data = _add_project_attribute_data(proj_i, attr_map, project.attribute_data)
     proj_i.attribute_data = proj_data
@@ -96,6 +99,7 @@ def update_project(project, **kwargs):
 
     proj_i.project_name = project.name
     proj_i.project_description = project.description
+    proj_i.layout = project.get_layout()
 
     attr_map = add_attributes(proj_i, project.attributes)
     proj_data = _add_project_attribute_data(proj_i, attr_map, project.attribute_data)

@@ -1369,6 +1369,7 @@ class Project(Resource):
    - **description** Unicode(default=None)
    - **status**      Unicode(default='A')
    - **cr_date**     Unicode(default=None)
+   - **layout**      AnyDict(min_occurs=0, max_occurs=1, default=None)
    - **created_by**  Integer(default=None)
    - **attributes**  SpyneArray(ResourceAttr)
    - **attribute_data** SpyneArray(ResourceScenario)
@@ -1381,6 +1382,7 @@ class Project(Resource):
         ('description', Unicode(default=None)),
         ('status', Unicode(default='A', pattern="[AX]")),
         ('cr_date', Unicode(default=None)),
+        ('layout', AnyDict(min_occurs=0, max_occurs=1, default=None)),
         ('created_by', Integer(default=None)),
         ('attributes', SpyneArray(ResourceAttr)),
         ('attribute_data', SpyneArray(ResourceScenario)),
@@ -1399,6 +1401,7 @@ class Project(Resource):
         self.description = parent.project_description
         self.status = parent.status
         self.cr_date = str(parent.cr_date)
+        self.layout = self.get_outgoing_layout(parent.layout)
         self.created_by = parent.created_by
         self.attributes = [ResourceAttr(ra) for ra in parent.attributes]
         self.attribute_data = [ResourceScenario(rs) for rs in parent.attribute_data]
@@ -1413,6 +1416,7 @@ class ProjectSummary(Resource):
        - **description** Unicode(default=None)
        - **status**      Unicode(default=None)
        - **cr_date**     Unicode(default=None)
+       - **layout**      AnyDict(min_occurs=0, max_occurs=1, default=None)
        - **created_by**  Integer(default=None)
        - **networks**    SpyneArray(NetworkSummary)
        - **owners**      SpyneArray(Owner)
@@ -1423,6 +1427,7 @@ class ProjectSummary(Resource):
         ('description', Unicode(default=None)),
         ('status', Unicode(default=None)),
         ('cr_date', Unicode(default=None)),
+        ('layout', AnyDict(min_occurs=0, max_occurs=1, default=None)),
         ('created_by', Integer(default=None)),
         ('networks', SpyneArray(NetworkSummary)),
         ('owners', SpyneArray(Owner)),
@@ -1437,6 +1442,7 @@ class ProjectSummary(Resource):
         self.name = parent.project_name
         self.description = parent.project_description
         self.cr_date = str(parent.cr_date)
+        self.layout = self.get_outgoing_layout(parent.layout)
         self.created_by = parent.created_by
         self.networks = [NetworkSummary(net) for net in parent.networks]
         self.owners = [Owner(owner) for owner in parent.owners]
