@@ -670,7 +670,7 @@ def _update_resourcescenario(scenario, resource_scenario, dataset=None, new=Fals
         r_scen_i.resource_attr_id = resource_scenario.resource_attr_id
         r_scen_i.scenario_id      = scenario.scenario_id
 
-        DBSession.add(r_scen_i) 
+        DBSession.add(r_scen_i)
 
     if scenario.locked == 'Y':
         log.info("Scenario %s is locked", scenario.scenario_id)
@@ -944,7 +944,7 @@ def get_resource_data(ref_key, ref_id, scenario_id, type_id, **kwargs):
     return resource_data
 
 
-def get_scenarios_data(nodes, links, scenario_id, attr_id, type_id, **kwargs):
+def get_scenarios_data(networks, nodes, links, scenario_id, attr_id, type_id, **kwargs):
     """
         Get all the resource scenarios for a given attribute and/or type
         in a given scenario.
@@ -969,11 +969,29 @@ def get_scenarios_data(nodes, links, scenario_id, attr_id, type_id, **kwargs):
         if attr_id:
             resource_data_qry = resource_data_qry.filter(ResourceAttr.attr_id.in_(set(attr_id)))
 
+        if networks and nodes and links:
+            resource_data_qry = resource_data_qry.filter( or_(
+                ResourceAttr.network_id.in_(set(networks)),
+                ResourceAttr.node_id.in_(set(nodes)),
+                ResourceAttr.link_id.in_(set(links))
+                ))
         if nodes and links:
             resource_data_qry = resource_data_qry.filter( or_(
                 ResourceAttr.node_id.in_(set(nodes)),
                 ResourceAttr.link_id.in_(set(links))
                 ))
+        if networks and nodes:
+            resource_data_qry = resource_data_qry.filter( or_(
+                ResourceAttr.network_id.in_(set(networks)),
+                ResourceAttr.node_id.in_(set(nodes)),
+                ))
+        if networks and links:
+            resource_data_qry = resource_data_qry.filter(or_(
+                ResourceAttr.network_id.in_(set(networks)),
+                ResourceAttr.link_id.in_(set(links))
+            ))
+        elif networks:
+            resource_data_qry = resource_data_qry.filter( ResourceAttr.network_id.in_(set(networks)))
         elif nodes:
             resource_data_qry = resource_data_qry.filter( ResourceAttr.node_id.in_(set(nodes)))
         elif links:
@@ -1087,7 +1105,7 @@ def get_resourcescenarios(resource_attr_ids, scenario_ids, **kwargs):
         Retrieve all the datasets in a scenario for a given attribute.
         Also return the resource attributes so there is a reference to the node/link
     """
-    
+
     #Make sure the resource_attr_ids are valid
     check_ra_qry  = DBSession.query(ResourceAttr).filter(ResourceAttr.resource_attr_id.in_(resource_attr_ids)).all()
     if len(check_ra_qry) != len(resource_attr_ids):
