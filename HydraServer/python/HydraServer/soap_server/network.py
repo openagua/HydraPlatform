@@ -38,8 +38,8 @@ class NetworkService(HydraService):
         The network SOAP service.
     """
 
-    @rpc(Network, _returns=Network)
-    def add_network(ctx, net):
+    @rpc(Network, Unicode(pattern="[YN]", default='Y'), _returns=Network)
+    def add_network(ctx, net, return_summary):
         """
         Takes an entire network complex model and saves it to the DB.  This
         complex model includes links & scenarios (with resource data).  Returns
@@ -62,7 +62,7 @@ class NetworkService(HydraService):
 
         """
         net = network.add_network(net, **ctx.in_header.__dict__)
-        ret_net = Network(net, summary=True)
+        ret_net = Network(net, summary=return_summary=='Y')
         return ret_net
 
     @rpc(Integer,
