@@ -256,7 +256,6 @@ def _bulk_add_resource_attrs(network_id, ref_key, resources, resource_name_map):
                 resource_attrs[ra.id] = resource_attr_dict[(ref_id, ra.attr_id)]
 
     logging.info("Resource attributes added in %s"%(datetime.datetime.now() - start_time))
-    print " resource_attrs   size: ", len(resource_attrs)
 
     return resource_attrs, defaults
 

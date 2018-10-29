@@ -74,11 +74,11 @@ import socket
 
 log = logging.getLogger(__name__)
 
-try:
-    from hwi import app as ui_app
-except Exception, e:
-    log.exception(e)
-    ui_app = None
+# try:
+#     from hwi import app as ui_app
+# except Exception, e:
+#     log.exception(e)
+ui_app = None
 
 from beaker.middleware import SessionMiddleware
 
