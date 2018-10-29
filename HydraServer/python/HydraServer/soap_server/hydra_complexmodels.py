@@ -1237,9 +1237,7 @@ class Network(Resource):
         self.types = [TypeSummary(t.templatetype) for t in parent.types]
         self.projection = parent.projection
         self.owners = [Owner(owner) for owner in parent.owners]
-
-        if summary is False:
-            self.attributes = [ResourceAttr(ra) for ra in parent.attributes]
+        self.attributes = [ResourceAttr(ra) for ra in parent.attributes] if summary is False else []
 
 
 class NetworkSummary(Resource):
