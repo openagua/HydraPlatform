@@ -276,6 +276,85 @@ class NetworkService(HydraService):
             ret_link = Link(link)
             return ret_link
 
+    @rpc(Integer(min_occurs=1, max_occurs="unbounded"), Integer(min_occurs=0), _returns=SpyneArray(Node))
+    def get_nodes(ctx, node_ids, scenario_id):
+        """
+        Get nodes using the node_ids.
+        optionally, scenario_id can be included if data is to be included
+
+        Args:
+            node_id (int): The node to retrieve
+            scenario_id (int) (optional): Include this if you want to include data with the scenario
+
+        Returns:
+            hydra_complexmodels.Node: A node complex model, with attributes and data if requested)
+
+        Raises:
+            ResourceNotFoundError: If the node or scenario is not found
+
+        """
+        nodes = network.get_nodes(node_ids, **ctx.in_header.__dict__)
+        ret_nodes = []
+        if scenario_id is not None:
+            for node in nodes:
+                ret_node = Node(node)
+
+                res_scens = scenario.get_resource_data('NODE', node.node_id, scenario_id, None)
+
+                rs_dict = {}
+                for rs in res_scens:
+                    rs_dict[rs.resource_attr_id] = rs
+
+                for ra in ret_node.attributes:
+                    if rs_dict.get(ra.id):
+                        ra.resourcescenario = ResourceScenario(rs_dict[ra.id])
+                ret_nodes.append(ret_node)
+
+        else:
+            ret_nodes = [Node(node) for node in nodes]
+
+        return ret_nodes
+
+    @rpc(Integer(min_occurs=1, max_occurs="unbounded"), Integer(min_occurs=0), _returns=SpyneArray(Link))
+    def get_links(ctx, link_ids, scenario_id):
+        """
+        Get links using the link_ids.
+        optionally, scenario_id can be included if data is to be included
+
+        Args:
+            link_id (int): The link to retrieve
+            scenario_id (int) (optional): Include this if you want to include data with the scenario
+
+        Returns:
+            hydra_complexmodels.Link: A link complex model, with attributes and data if requested)
+
+        Raises:
+            ResourceNotFoundError: If the link or scenario is not found
+
+        """
+        links = network.get_links(link_ids, **ctx.in_header.__dict__)
+        ret_links = []
+        if scenario_id is not None:
+            for link in links:
+                ret_link = Link(link)
+
+                res_scens = scenario.get_resource_data('LINK', link.link_id, scenario_id, None)
+
+                rs_dict = {}
+                for rs in res_scens:
+                    rs_dict[rs.resource_attr_id] = rs
+
+                for ra in ret_link.attributes:
+                    if rs_dict.get(ra.id):
+                        ra.resourcescenario = ResourceScenario(rs_dict[ra.id])
+                ret_links.append(ret_link)
+
+        else:
+            ret_links = [Link(link) for link in links]
+
+        return ret_links
+
+
     @rpc(Integer, Integer, _returns=ResourceGroup)
     def get_resourcegroup(ctx, group_id, scenario_id):
         """

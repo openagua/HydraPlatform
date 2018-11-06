@@ -110,7 +110,7 @@ def _bulk_add_resource_attrs(network_id, ref_key, resources, resource_name_map):
     #List of resource attributes
     resource_attrs = {}
 
-    #Default ra / dataset pairings. 
+    #Default ra / dataset pairings.
     defaults = {}
 
     #First get all the attributes assigned from the csv files.
@@ -232,7 +232,7 @@ def _bulk_add_resource_attrs(network_id, ref_key, resources, resource_name_map):
             ref_id = resource_attr.network_id
 
         resource_attr_dict[(ref_id, resource_attr.attr_id)] = resource_attr
-        
+
         if defaults.get((ref_id, resource_attr.attr_id)):
             defaults[(ref_id, resource_attr.attr_id)]['resource_attr_id'] = resource_attr.resource_attr_id
 
@@ -377,7 +377,7 @@ def _add_resource_groups(net_i, resourcegroups):
     grp_datasets = []
 
     if resourcegroups is None or len(resourcegroups)==0:
-        return group_id_map, group_attrs, {} 
+        return group_id_map, group_attrs, {}
     #Then add all the groups.
     log.info("Adding groups to network")
     group_dicts = []
@@ -530,7 +530,7 @@ def add_network(network,**kwargs):
 
             data_start_time = datetime.datetime.now()
 
-            for default in defaults: 
+            for default in defaults:
                 scen.add_resource_scenario(dictobj(default),
                                            dictobj({'dataset_id':default['dataset_id']}),
                                            source=kwargs.get('app_name'))
@@ -1000,16 +1000,16 @@ def get_network(network_id, include_resources=True, summary=False, include_data=
         # TODO: delete the above once owners can be added automatically by SQLAlchemy, non-lazily, or some other mod
 
         net = dictobj(net_i.__dict__)
-                
+
         log.info("Setting types")
         all_types = _get_all_templates(network_id, template_id)
-        net.types = all_types['NETWORK'].get(network_id, [])                
-                
+        net.types = all_types['NETWORK'].get(network_id, [])
+
         if include_resources is True:
             net.nodes          = _get_nodes(network_id, template_id=template_id)
             net.links          = _get_links(network_id, template_id=template_id)
             net.resourcegroups = _get_groups(network_id, template_id=template_id)
-            
+
             for node in net.nodes:
                 node.types = all_types['NODE'].get(node.node_id, [])
             for link in net.links:
@@ -1018,7 +1018,7 @@ def get_network(network_id, include_resources=True, summary=False, include_data=
                 group.types = all_types['GROUP'].get(group.group_id, [])
 
             if summary is False:
-            
+
                 all_attributes = _get_all_resource_attributes(network_id, template_id)
                 log.info("Setting attributes")
                 net.attributes = all_attributes['NETWORK'].get(network_id, [])
@@ -1063,6 +1063,20 @@ def get_link(link_id,**kwargs):
         return l
     except NoResultFound:
         raise ResourceNotFoundError("Link %s not found"%(link_id,))
+
+def get_nodes(node_ids,**kwargs):
+    try:
+        nodes = DBSession.query(Node).filter(Node.node_id.in_(node_ids)).options(joinedload_all('attributes.attr')).all()
+        return nodes
+    except NoResultFound:
+        raise ResourceNotFoundError("Invalid node IDs")
+
+def get_links(link_ids,**kwargs):
+    try:
+        l = DBSession.query(Link).filter(Link.link_id.in_(link_ids)).options(joinedload_all('attributes.attr')).all()
+        return l
+    except NoResultFound:
+        raise ResourceNotFoundError("Invalid link IDs")
 
 def get_resourcegroup(group_id,**kwargs):
     try:
