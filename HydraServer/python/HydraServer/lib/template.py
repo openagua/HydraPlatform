@@ -1014,7 +1014,7 @@ def delete_template(template_id, **kwargs):
     return 'OK'
 
 
-def get_templates(load_all=False, **kwargs):
+def get_templates(template_ids=None, load_all=False, **kwargs):
     """
         Get all templates.
         Args:
@@ -1022,8 +1022,12 @@ def get_templates(load_all=False, **kwargs):
         Returns:
             List of Template objects
     """
+    if template_ids:
+        templates = DBSession.query(Template).filter(Template.template_id.in_(template_ids))
+    else:
+        templates = DBSession.query(Template)
     if load_all is True:
-        templates = DBSession.query(Template).options(joinedload_all('templatetypes.typeattrs')).order_by('template_id').all()
+        templates = templates.options(joinedload_all('templatetypes.typeattrs')).order_by('template_id').all()
     else:
 
         # all_templates = DBSession.query(Template).order_by('template_id').all()
@@ -1045,7 +1049,7 @@ def get_templates(load_all=False, **kwargs):
             #     DBSession.flush()
 
         user_id = kwargs.get('user_id')
-        templates = DBSession.query(Template).join(TemplateOwner).filter(TemplateOwner.user_id.in_((user_id, 1))).options(joinedload_all('templatetypes.typeattrs')).order_by('template_id').all()
+        templates = templates.join(TemplateOwner).filter(TemplateOwner.user_id.in_((user_id, 1))).options(joinedload_all('templatetypes.typeattrs')).order_by('template_id').all()
         for t in templates:
             t.check_read_permission(user_id)
         # templates = DBSession.query(Template).options(joinedload_all('templatetypes.typeattrs')).all()

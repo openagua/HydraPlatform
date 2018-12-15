@@ -172,12 +172,12 @@ class TemplateService(HydraService):
                                            **ctx.in_header.__dict__)
         return 'OK'
 
-    @rpc(_returns=SpyneArray(Template))
-    def get_templates(ctx):
+    @rpc(Integer(min_occurs=0, max_occurs='unbounded'), _returns=SpyneArray(Template))
+    def get_templates(ctx, template_ids):
         """
             Get all resource template templates.
         """
-        tmpls = template.get_templates(**ctx.in_header.__dict__)
+        tmpls = template.get_templates(template_ids=template_ids, **ctx.in_header.__dict__)
         ret_templates = [Template(t) for t in tmpls]
 
         return ret_templates
