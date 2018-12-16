@@ -53,13 +53,13 @@ def _get_resource(ref_key, ref_id):
     except NoResultFound:
         raise ResourceNotFoundError("Resource %s with ID %s not found"%(ref_key, ref_id))
 
-def get_attribute_by_id(attr_id, **kwargs):
+def get_attribute_by_id(attr_ids, **kwargs):
     """
         Get a specific attribute by its ID.
     """
 
     try:
-        attr_i = DBSession.query(Attr).filter(Attr.attr_id==attr_id).one()
+        attr_i = DBSession.query(Attr).filter(Attr.attr_id.in_(attr_ids)).all()
         return attr_i
     except NoResultFound:
         return None

@@ -421,6 +421,8 @@ class ResourceAttr(HydraComplexModel):
     _type_info = [
         ('id', Integer(min_occurs=0, default=None)),
         ('attr_id', Integer(default=None)),
+        ('attr_name', Unicode(default='')),
+        ('attr_dimen', Unicode(default='')),
         ('ref_id', Integer(min_occurs=0, default=None)),
         ('ref_key', Unicode(min_occurs=0, default=None)),
         ('attr_is_var', Unicode(min_occurs=0, default='N')),
@@ -434,6 +436,8 @@ class ResourceAttr(HydraComplexModel):
             return
         self.id = parent.resource_attr_id
         self.attr_id = parent.attr_id
+        self.attr_name = parent.attr_name
+        self.attr_dimen = parent.attr_dimen
         self.ref_key = parent.ref_key
         self.cr_date = str(parent.cr_date)
         if parent.ref_key == 'NETWORK':

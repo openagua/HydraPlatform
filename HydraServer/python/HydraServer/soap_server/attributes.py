@@ -127,12 +127,25 @@ class AttributeService(HydraService):
             hydra_complexmodels.Attr: An attribute complex model.
                 Returns None if no attribute is found.
         """
-        attr = attributes.get_attribute_by_id(ID, **ctx.in_header.__dict__)
+        attrs = attributes.get_attribute_by_id([ID], **ctx.in_header.__dict__)
 
-        if attr:
-            return Attr(attr)
+        return Attr(attrs[0]) if attrs else None
 
-        return None
+    @rpc(Integer(min_occurs=1, max_occurs='unbounded'), _returns=SpyneArray(Attr))
+    def get_attributes_by_id(ctx, ID):
+        """
+        Get a specific attribute by its ID.
+
+        Args:
+            ID (int): The ID of the attribute
+
+        Returns:
+            hydra_complexmodels.Attr: An attribute complex model.
+                Returns None if no attribute is found.
+        """
+        attrs = attributes.get_attribute_by_id(ID, **ctx.in_header.__dict__)
+
+        return [Attr(attr) for attr in attrs]
 
     @rpc(Unicode, Unicode, _returns=Attr)
     def get_attribute(ctx, name, dimension):
