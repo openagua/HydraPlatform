@@ -436,8 +436,14 @@ class ResourceAttr(HydraComplexModel):
             return
         self.id = parent.resource_attr_id
         self.attr_id = parent.attr_id
-        self.attr_name = parent.attr_name
-        self.attr_dimen = parent.attr_dimen
+        if hasattr(parent, 'attr_name'):
+            self.attr_name = parent.attr_name
+        else:
+            self.attr_name = parent.attr.attr_name
+        if hasattr(parent, 'attr_dimen'):
+            self.attr_dimen = parent.attr_dimen
+        else:
+            self.attr_dimen = parent.attr.attr_dimen
         self.ref_key = parent.ref_key
         self.cr_date = str(parent.cr_date)
         if parent.ref_key == 'NETWORK':
