@@ -792,6 +792,11 @@ class ResourceSummary(HydraComplexModel):
             self.id = parent.link_id
             self.name = parent.link_name
             self.description = parent.link_description
+        elif hasattr(parent, 'network_id'):
+            self.ref_key = 'NETWORK'
+            self.id = parent.network_id
+            self.name = parent.network_name
+            self.description = parent.network_description
         elif hasattr(parent, 'group_id'):
             self.ref_key = 'GROUP'
             self.id = parent.group_id

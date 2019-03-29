@@ -919,13 +919,15 @@ class NetworkService(HydraService):
         if type(type_id) == int:
             type_id = [type_id]
 
-        nodes, links, groups = network.get_resources_of_type(network_id, type_id, **ctx.in_header.__dict__)
+        nodes, links, networks, groups = network.get_resources_of_type(network_id, type_id, **ctx.in_header.__dict__)
 
         resources = []
         for n in nodes:
             resources.append(ResourceSummary(n))
         for l in links:
             resources.append(ResourceSummary(l))
+        for n in networks:
+            resources.append(ResourceSummary(n))
         for g in groups:
             resources.append(ResourceSummary(g))
 
