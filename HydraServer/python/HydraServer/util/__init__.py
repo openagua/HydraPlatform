@@ -31,9 +31,9 @@ def generate_data_hash(dataset_dict):
         d['metadata'] = {}
 
     hash_string = "%s %s %s %s %s %s"%(
-                                str(d['data_name']),
-                                str(d['data_units']),
-                                str(d['data_dimen']),
+                                str(d['data_name'].encode('utf-8')),
+                                str(d['data_units'].encode('utf-8')),
+                                str(d['data_dimen'].encode('utf-8')),
                                 str(d['data_type']),
                                 d['value'],
                                 d['metadata'])
