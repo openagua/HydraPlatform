@@ -1006,6 +1006,13 @@ def get_network(network_id, include_resources=True, summary=False, include_data=
         all_types = _get_all_templates(network_id, template_id)
         net.types = all_types['NETWORK'].get(network_id, [])
 
+        if summary is False:
+            all_attributes = _get_all_resource_attributes(network_id, template_id)
+            log.info("Setting attributes")
+            net.attributes = all_attributes['NETWORK'].get(network_id, [])
+        else:
+            all_attributes = {}
+
         if include_resources is True:
             net.nodes          = _get_nodes(network_id, template_id=template_id)
             net.links          = _get_links(network_id, template_id=template_id)
@@ -1020,9 +1027,9 @@ def get_network(network_id, include_resources=True, summary=False, include_data=
 
             if summary is False:
 
-                all_attributes = _get_all_resource_attributes(network_id, template_id)
-                log.info("Setting attributes")
-                net.attributes = all_attributes['NETWORK'].get(network_id, [])
+                # all_attributes = _get_all_resource_attributes(network_id, template_id)
+                # log.info("Setting attributes")
+                # net.attributes = all_attributes['NETWORK'].get(network_id, [])
                 for node in net.nodes:
                     node.attributes = all_attributes['NODE'].get(node.node_id, [])
                 log.info("Node attributes set")
