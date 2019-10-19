@@ -592,6 +592,7 @@ def _get_all_resource_attributes(network_id, template_id=None):
                                ResourceAttr.group_id.label('group_id'),
                                ResourceAttr.network_id.label('network_id'),
                                ResourceAttr.attr_id.label('attr_id'),
+                               ResourceAttr.unit.label('unit'),
                                ResourceAttr.data_type.label('data_type'),
                                ResourceAttr.description.label('description'),
                                ResourceAttr.properties.label('properties'),

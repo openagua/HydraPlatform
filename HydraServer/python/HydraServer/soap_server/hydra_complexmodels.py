@@ -426,6 +426,7 @@ class ResourceAttr(HydraComplexModel):
         ('ref_id', Integer(min_occurs=0, default=None)),
         ('ref_key', Unicode(min_occurs=0, default=None)),
         ('attr_is_var', Unicode(min_occurs=0, default='N')),
+        ('unit', Unicode(min_occurs=0, default='')),
         ('data_type', Unicode(min_occurs=0, default='')),
         ('description', Unicode(min_occurs=0, default='')),
         ('properties', AnyDict(min_occurs=0, max_occurs=1, default='{}')),
@@ -460,6 +461,7 @@ class ResourceAttr(HydraComplexModel):
 
         self.attr_is_var = parent.attr_is_var
 
+        self.unit = getattr(parent, 'unit', '')
         self.data_type = getattr(parent, 'data_type', '')
         self.description = getattr(parent, 'description', '')
         self.properties = getattr(parent, 'properties', {})

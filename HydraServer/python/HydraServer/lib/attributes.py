@@ -228,7 +228,7 @@ def _get_templatetype(type_id):
     except NoResultFound:
         raise ResourceNotFoundError("Template Type with ID %s not found"%(type_id,))
 
-def update_resource_attribute(resource_attr_id, is_var, data_type, description, properties, **kwargs):
+def update_resource_attribute(resource_attr_id, is_var, unit, data_type, description, properties, **kwargs):
     """
         Deletes a resource attribute and all associated data.
     """
@@ -241,6 +241,7 @@ def update_resource_attribute(resource_attr_id, is_var, data_type, description, 
     ra.check_write_permission(user_id)
 
     ra.attr_is_var = is_var
+    ra.unit = unit
     ra.data_type = data_type
     ra.description = description
     # ra.properties = properties

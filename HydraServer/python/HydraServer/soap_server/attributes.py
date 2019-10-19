@@ -221,8 +221,8 @@ class AttributeService(HydraService):
 
         return ret_attrs
 
-    @rpc(Integer, Unicode(pattern="['YN']"), Unicode, Unicode, AnyDict, _returns=ResourceAttr)
-    def update_resource_attribute(ctx, resource_attr_id, is_var, data_type, description, properties):
+    @rpc(Integer, Unicode(pattern="['YN']"), Unicode, Unicode, Unicode, AnyDict, _returns=ResourceAttr)
+    def update_resource_attribute(ctx, resource_attr_id, is_var, unit, data_type, description, properties):
         """
         Update a resource attribute (which means update the is_var flag
         as this is the only thing you can update on a resource attr)
@@ -239,6 +239,7 @@ class AttributeService(HydraService):
         """
         updated_ra = attributes.update_resource_attribute(resource_attr_id,
                                                           is_var,
+                                                          unit,
                                                           data_type,
                                                           description,
                                                           properties,
