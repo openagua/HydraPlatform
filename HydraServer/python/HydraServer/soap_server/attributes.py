@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with HydraPlatform.  If not, see <http://www.gnu.org/licenses/>
 #
-from spyne.model.primitive import Integer, Unicode
+from spyne.model.primitive import Integer, Unicode, AnyDict
 from spyne.model.complex import Array as SpyneArray
 from spyne.decorator import rpc
 from hydra_complexmodels import Attr
@@ -221,8 +221,8 @@ class AttributeService(HydraService):
 
         return ret_attrs
 
-    @rpc(Integer, Unicode(pattern="['YN']"), _returns=ResourceAttr)
-    def update_resource_attribute(ctx, resource_attr_id, is_var):
+    @rpc(Integer, Unicode(pattern="['YN']"), Unicode, Unicode, AnyDict, _returns=ResourceAttr)
+    def update_resource_attribute(ctx, resource_attr_id, is_var, data_type, description, properties):
         """
         Update a resource attribute (which means update the is_var flag
         as this is the only thing you can update on a resource attr)
@@ -239,6 +239,9 @@ class AttributeService(HydraService):
         """
         updated_ra = attributes.update_resource_attribute(resource_attr_id,
                                                           is_var,
+                                                          data_type,
+                                                          description,
+                                                          properties,
                                                           **ctx.in_header.__dict__)
         return ResourceAttr(updated_ra)
 

@@ -200,7 +200,7 @@ def add_attributes(attrs,**kwargs):
         new_attrs.append(attr_i)
 
     DBSession.flush()
-    
+
     new_attrs = new_attrs + existing_attrs
 
     return new_attrs
@@ -228,7 +228,7 @@ def _get_templatetype(type_id):
     except NoResultFound:
         raise ResourceNotFoundError("Template Type with ID %s not found"%(type_id,))
 
-def update_resource_attribute(resource_attr_id, is_var, **kwargs):
+def update_resource_attribute(resource_attr_id, is_var, data_type, description, properties, **kwargs):
     """
         Deletes a resource attribute and all associated data.
     """
@@ -240,9 +240,12 @@ def update_resource_attribute(resource_attr_id, is_var, **kwargs):
 
     ra.check_write_permission(user_id)
 
-    ra.is_var = is_var
+    ra.attr_is_var = is_var
+    ra.data_type = data_type
+    ra.description = description
+    # ra.properties = properties
 
-    return 'OK'
+    return ra
 
 def delete_resource_attribute(resource_attr_id, **kwargs):
     """
@@ -321,14 +324,14 @@ def get_all_resource_attributes(ref_key, network_id, template_id=None, **kwargs)
     """
 
     user_id = kwargs.get('user_id')
-    
+
     resource_attr_qry = DBSession.query(ResourceAttr).\
             outerjoin(Node, Node.node_id==ResourceAttr.node_id).\
             outerjoin(Link, Link.link_id==ResourceAttr.link_id).\
             outerjoin(ResourceGroup, ResourceGroup.group_id==ResourceAttr.group_id).filter(
         ResourceAttr.ref_key == ref_key,
         or_(
-            and_(ResourceAttr.node_id != None, 
+            and_(ResourceAttr.node_id != None,
                     ResourceAttr.node_id == Node.node_id,
                                         Node.network_id==network_id),
 
@@ -343,14 +346,14 @@ def get_all_resource_attributes(ref_key, network_id, template_id=None, **kwargs)
 
     if template_id is not None:
         attr_ids = []
-        rs = DBSession.query(TypeAttr).join(TemplateType, 
+        rs = DBSession.query(TypeAttr).join(TemplateType,
                                             TemplateType.type_id==TypeAttr.type_id).filter(
                                                 TemplateType.template_id==template_id).all()
         for r in rs:
             attr_ids.append(r.attr_id)
 
         resource_attr_qry = resource_attr_qry.filter(ResourceAttr.attr_id.in_(attr_ids))
-    
+
     resource_attrs = resource_attr_qry.all()
 
     return resource_attrs
@@ -363,7 +366,7 @@ def get_resource_attributes(ref_key, ref_id, type_id=None, **kwargs):
     """
 
     user_id = kwargs.get('user_id')
-    
+
     resource_attr_qry = DBSession.query(ResourceAttr).filter(
         ResourceAttr.ref_key == ref_key,
         or_(
@@ -372,7 +375,7 @@ def get_resource_attributes(ref_key, ref_id, type_id=None, **kwargs):
             ResourceAttr.link_id==ref_id,
             ResourceAttr.group_id==ref_id
         ))
-     
+
     if type_id is not None:
         attr_ids = []
         rs = DBSession.query(TypeAttr).filter(TypeAttr.type_id==type_id).all()
@@ -380,7 +383,7 @@ def get_resource_attributes(ref_key, ref_id, type_id=None, **kwargs):
             attr_ids.append(r.attr_id)
 
         resource_attr_qry = resource_attr_qry.filter(ResourceAttr.attr_id.in_(attr_ids))
-    
+
     resource_attrs = resource_attr_qry.all()
 
     return resource_attrs
@@ -402,10 +405,10 @@ def check_attr_dimension(attr_id, **kwargs):
     for d in datasets:
         if d.data_dimen != attr_i.attr_dimen:
             bad_datasets.append(d.dataset_id)
-   
+
     if len(bad_datasets) > 0:
         raise HydraError("Datasets %s have a different dimension to attribute %s"%(bad_datasets, attr_id))
-    
+
     return 'OK'
 
 def get_resource_attribute(resource_attr_id, **kwargs):
@@ -418,14 +421,14 @@ def get_resource_attribute(resource_attr_id, **kwargs):
     resource_attr_qry = DBSession.query(ResourceAttr).filter(
         ResourceAttr.resource_attr_id == resource_attr_id,
         )
-     
+
     resource_attr = resource_attr_qry.first()
 
     if resource_attr is None:
         raise ResourceNotFoundError("Resource attribute %s does not exist", resource_attr_id)
 
     return resource_attr
-    
+
 def set_attribute_mapping(resource_attr_a, resource_attr_b, **kwargs):
     """
         Define one resource attribute from one network as being the same as
@@ -439,7 +442,7 @@ def set_attribute_mapping(resource_attr_a, resource_attr_b, **kwargs):
                              resource_attr_id_b  = resource_attr_b,
                              network_a_id     = ra_1.get_network().network_id,
                              network_b_id     = ra_2.get_network().network_id )
-    
+
     DBSession.add(mapping)
 
     return mapping
@@ -452,7 +455,7 @@ def delete_attribute_mapping(resource_attr_a, resource_attr_b, **kwargs):
     user_id = kwargs.get('user_id')
 
     rm = aliased(ResourceAttrMap, name='rm')
-    
+
     log.info("Trying to delete attribute map. %s -> %s", resource_attr_a, resource_attr_b)
     mapping = DBSession.query(rm).filter(
                              rm.resource_attr_id_a == resource_attr_a,
@@ -504,7 +507,7 @@ def get_node_mappings(node_id, node_2_id=None, **kwargs):
         or_(
             and_(
                 ResourceAttrMap.resource_attr_id_a == ResourceAttr.resource_attr_id,
-                ResourceAttr.node_id == node_id), 
+                ResourceAttr.node_id == node_id),
             and_(
                 ResourceAttrMap.resource_attr_id_b == ResourceAttr.resource_attr_id,
                 ResourceAttr.node_id == node_id)))
@@ -514,11 +517,11 @@ def get_node_mappings(node_id, node_2_id=None, **kwargs):
         qry = qry.filter(or_(
             and_(
                 ResourceAttrMap.resource_attr_id_a == aliased_ra.resource_attr_id,
-                aliased_ra.node_id == node_2_id), 
+                aliased_ra.node_id == node_2_id),
             and_(
                 ResourceAttrMap.resource_attr_id_b == aliased_ra.resource_attr_id,
                 aliased_ra.node_id == node_2_id)))
-    
+
     return qry.all()
 
 def get_link_mappings(link_id, link_2_id=None, **kwargs):
@@ -530,7 +533,7 @@ def get_link_mappings(link_id, link_2_id=None, **kwargs):
         or_(
             and_(
                 ResourceAttrMap.resource_attr_id_a == ResourceAttr.resource_attr_id,
-                ResourceAttr.link_id == link_id), 
+                ResourceAttr.link_id == link_id),
             and_(
                 ResourceAttrMap.resource_attr_id_b == ResourceAttr.resource_attr_id,
                 ResourceAttr.link_id == link_id)))
@@ -540,11 +543,11 @@ def get_link_mappings(link_id, link_2_id=None, **kwargs):
         qry = qry.filter(or_(
             and_(
                 ResourceAttrMap.resource_attr_id_a == aliased_ra.resource_attr_id,
-                aliased_ra.link_id == link_2_id), 
+                aliased_ra.link_id == link_2_id),
             and_(
                 ResourceAttrMap.resource_attr_id_b == aliased_ra.resource_attr_id,
                 aliased_ra.link_id == link_2_id)))
-    
+
     return qry.all()
 
 
@@ -558,7 +561,7 @@ def get_network_mappings(network_id, network_2_id=None, **kwargs):
         or_(
             and_(
                 ResourceAttrMap.resource_attr_id_a == ResourceAttr.resource_attr_id,
-                ResourceAttr.network_id == network_id), 
+                ResourceAttr.network_id == network_id),
             and_(
                 ResourceAttrMap.resource_attr_id_b == ResourceAttr.resource_attr_id,
                 ResourceAttr.network_id == network_id)))
@@ -568,11 +571,11 @@ def get_network_mappings(network_id, network_2_id=None, **kwargs):
         qry = qry.filter(or_(
             and_(
                 ResourceAttrMap.resource_attr_id_a == aliased_ra.resource_attr_id,
-                aliased_ra.network_id == network_2_id), 
+                aliased_ra.network_id == network_2_id),
             and_(
                 ResourceAttrMap.resource_attr_id_b == aliased_ra.resource_attr_id,
                 aliased_ra.network_id == network_2_id)))
-    
+
     return qry.all()
 
 def check_attribute_mapping_exists(resource_attr_id_source, resource_attr_id_target, **kwargs):

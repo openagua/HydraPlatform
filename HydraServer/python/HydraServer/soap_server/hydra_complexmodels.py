@@ -426,6 +426,9 @@ class ResourceAttr(HydraComplexModel):
         ('ref_id', Integer(min_occurs=0, default=None)),
         ('ref_key', Unicode(min_occurs=0, default=None)),
         ('attr_is_var', Unicode(min_occurs=0, default='N')),
+        ('data_type', Unicode(min_occurs=0, default='')),
+        ('description', Unicode(min_occurs=0, default='')),
+        ('properties', AnyDict(min_occurs=0, max_occurs=1, default='{}')),
         ('resourcescenario', ResourceScenario),
         ('cr_date', Unicode(default=None)),
     ]
@@ -456,6 +459,11 @@ class ResourceAttr(HydraComplexModel):
             self.ref_id = parent.group_id
 
         self.attr_is_var = parent.attr_is_var
+
+        self.data_type = getattr(parent, 'data_type', '')
+        self.description = getattr(parent, 'description', '')
+        self.properties = getattr(parent, 'properties', {})
+
         # This should be set externally as it is not related to its parent.
         self.resourcescenario = None
 
