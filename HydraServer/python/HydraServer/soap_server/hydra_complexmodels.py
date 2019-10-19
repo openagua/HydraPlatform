@@ -429,7 +429,7 @@ class ResourceAttr(HydraComplexModel):
         ('unit', Unicode(min_occurs=0, default='')),
         ('data_type', Unicode(min_occurs=0, default='')),
         ('description', Unicode(min_occurs=0, default='')),
-        ('properties', AnyDict(min_occurs=0, max_occurs=1, default='{}')),
+        ('properties', AnyDict(default=None)),
         ('resourcescenario', ResourceScenario),
         ('cr_date', Unicode(default=None)),
     ]
@@ -464,7 +464,7 @@ class ResourceAttr(HydraComplexModel):
         self.unit = getattr(parent, 'unit', '')
         self.data_type = getattr(parent, 'data_type', '')
         self.description = getattr(parent, 'description', '')
-        self.properties = getattr(parent, 'properties', {})
+        self.properties = json.loads(parent.properties) if parent.properties else {}
 
         # This should be set externally as it is not related to its parent.
         self.resourcescenario = None

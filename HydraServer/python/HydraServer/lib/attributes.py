@@ -15,6 +15,8 @@
 import logging
 log = logging.getLogger(__name__)
 
+import json
+
 from HydraServer.db.model import Attr,\
         Node,\
         Link,\
@@ -244,7 +246,9 @@ def update_resource_attribute(resource_attr_id, is_var, unit, data_type, descrip
     ra.unit = unit
     ra.data_type = data_type
     ra.description = description
-    # ra.properties = properties
+    if type(properties) == dict:
+        properties = json.dumps(properties)
+    ra.properties = properties
 
     return ra
 
