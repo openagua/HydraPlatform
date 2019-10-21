@@ -21,6 +21,6 @@ spyne==2.12.14
 SQLAlchemy==1.2.12
 suds==0.4
 transaction==2.2.1
-urllib3==1.23
+urllib3==1.24.2
 zope.interface==4.5.0
 zope.sqlalchemy==1.0
